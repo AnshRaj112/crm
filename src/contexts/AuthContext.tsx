@@ -4,12 +4,12 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '../utils/supabase';
 
-interface UserProfile {
+interface UserXP {
   id: string;
   user_id: string;
-  full_name: string;
-  contact_number: string;
-  email: string;
+  total_xp: number;
+  current_level: number;
+  xp_to_next_level: number;
   created_at: string;
   updated_at: string;
 }
@@ -18,11 +18,12 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  userProfile: UserProfile | null;
-  signUp: (email: string, password: string, fullName: string, contactNumber: string) => Promise<{ error: unknown }>;
+  userXP: UserXP | null;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: unknown }>;
   signIn: (email: string, password: string) => Promise<{ error: unknown }>;
+  signInWithGoogle: () => Promise<{ error: unknown }>;
   signOut: () => Promise<{ error: unknown }>;
-  refreshProfile: () => Promise<void>;
+  refreshXP: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -31,32 +32,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userXP, setUserXP] = useState<UserXP | null>(null);
 
-  const fetchUserProfile = async (userId: string) => {
+  const fetchUserXP = async (userId: string) => {
     if (!supabase) return;
 
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
+        .from('user_xp')
         .select('*')
         .eq('user_id', userId)
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching user profile:', error.code, error.message, error);
+        console.error('Error fetching user XP:', error.code, error.message, error);
         return;
       }
 
-      setUserProfile(data || null);
+      setUserXP(data || null);
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error('Error fetching user XP:', error);
     }
   };
 
-  const refreshProfile = async () => {
+  const refreshXP = async () => {
     if (user) {
-      await fetchUserProfile(user.id);
+      await fetchUserXP(user.id);
     }
   };
 
@@ -87,13 +88,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user) {
-      fetchUserProfile(user.id);
+      fetchUserXP(user.id);
     } else {
-      setUserProfile(null);
+      setUserXP(null);
     }
   }, [user]);
 
-  const signUp = async (email: string, password: string, fullName: string, contactNumber: string) => {
+  const signUp = async (email: string, password: string, fullName: string) => {
     if (!supabase) {
       return { error: new Error('Supabase not configured') };
     }
@@ -103,7 +104,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       options: {
         data: {
           full_name: fullName,
-          contact_number: contactNumber,
         },
       },
     });
@@ -121,6 +121,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error };
   };
 
+  const signInWithGoogle = async () => {
+    if (!supabase) {
+      return { error: new Error('Supabase not configured') };
+    }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    return { error };
+  };
 
   const signOut = async () => {
     if (!supabase) {
@@ -134,11 +146,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     session,
     loading,
-    userProfile,
+    userXP,
     signUp,
     signIn,
+    signInWithGoogle,
     signOut,
-    refreshProfile,
+    refreshXP,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
