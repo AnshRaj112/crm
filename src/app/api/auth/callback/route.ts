@@ -8,9 +8,21 @@ export async function GET(request: NextRequest) {
 
   if (code) {
     const supabase = await createClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+    
+    try {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      
+      if (error) {
+        console.error('OAuth callback error:', error)
+        return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+      }
+
+      if (data.session) {
+        return NextResponse.redirect(`${origin}${next}`)
+      }
+    } catch (error) {
+      console.error('OAuth callback error:', error)
+      return NextResponse.redirect(`${origin}/auth/auth-code-error`)
     }
   }
 

@@ -41,12 +41,20 @@ export default function DashboardPage() {
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
   const checkUser = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
+    try {
+      const response = await fetch('/api/auth/me');
+      const data = await response.json();
+
+      if (!response.ok) {
+        router.push('/login');
+        return;
+      }
+
+      setUser(data.user);
+    } catch (error) {
+      console.error('Error checking user:', error);
       router.push('/login');
-      return;
     }
-    setUser(user);
   }, [router]);
 
   const fetchLeads = useCallback(async () => {
@@ -85,8 +93,15 @@ export default function DashboardPage() {
   }, [checkUser, fetchLeads]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    router.push('/');
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   if (loading) {

@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { getAuthConfig } from "@/lib/auth-config";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
@@ -23,15 +21,26 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
 
       if (data.user) {
         router.push("/dashboard");
+        router.refresh(); // Refresh to update the page
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
@@ -45,15 +54,25 @@ export default function LoginPage() {
     setError("");
 
     try {
-      const { redirectTo } = getAuthConfig();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
+      const response = await fetch('/api/auth/oauth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          provider: 'google',
+        }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'OAuth failed');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
       setLoading(false);

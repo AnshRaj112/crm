@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { getAuthConfig } from "@/lib/auth-config";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function SignUpPage() {
@@ -40,22 +38,28 @@ export default function SignUpPage() {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone: formData.phone,
-          },
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+        }),
       });
 
-      if (error) throw error;
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Signup failed');
+      }
 
       if (data.user) {
         router.push("/dashboard");
+        router.refresh(); // Refresh to update the page
       }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
@@ -69,13 +73,25 @@ export default function SignUpPage() {
     setError("");
 
     try {
-      const { redirectTo } = getAuthConfig();
-      await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
+      const response = await fetch('/api/auth/oauth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
+        body: JSON.stringify({
+          provider: 'google',
+        }),
       });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'OAuth failed');
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : 'An error occurred');
       setLoading(false);
