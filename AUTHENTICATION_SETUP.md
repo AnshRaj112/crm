@@ -105,19 +105,12 @@ In your Supabase dashboard:
 
 1. Go to Authentication > Providers
 2. Enable Email provider
-3. Configure Google OAuth (if needed):
-   - Enable Google provider
-   - Add your OAuth credentials
-   - Set redirect URL to: `https://yourdomain.com/auth/callback`
 
 ### 3. URL Configuration
 
 In Supabase Dashboard > Authentication > URL Configuration:
 
 - **Site URL**: `https://yourdomain.com` (or `http://localhost:3000` for development)
-- **Redirect URLs**: 
-  - `https://yourdomain.com/auth/callback`
-  - `http://localhost:3000/auth/callback` (for development)
 
 ## API Routes
 
@@ -125,10 +118,8 @@ The following API routes have been created:
 
 - `POST /api/auth/login` - Email/password login
 - `POST /api/auth/signup` - User registration
-- `POST /api/auth/oauth` - OAuth provider login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/user` - Get current user
-- `GET /auth/callback` - OAuth callback handler
 
 ## Production Deployment
 
@@ -151,21 +142,18 @@ The following API routes have been created:
 1. Run `npm run dev`
 2. Navigate to `http://localhost:3000/login`
 3. Test email/password login
-4. Test Google OAuth (if configured)
 
 ### Production
 
 1. Deploy your application
 2. Test authentication on your production domain
-3. Verify OAuth callbacks work correctly
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **OAuth not working**: Check redirect URLs in Supabase dashboard
-2. **Session not persisting**: Verify middleware configuration
-3. **CORS errors**: Ensure proper domain configuration
+1. **Session not persisting**: Verify middleware configuration
+2. **CORS errors**: Ensure proper domain configuration
 
 ### Debug Mode
 
@@ -187,4 +175,3 @@ console.log('Authentication attempt:', { email, provider });
 - Implement password reset functionality
 - Add email verification
 - Set up user profile management
-- Configure additional OAuth providers as needed
