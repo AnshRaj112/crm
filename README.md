@@ -5,7 +5,7 @@ A powerful CRM platform for lead generation, built with Next.js and Supabase.
 ## Features
 
 - **Landing Page**: Beautiful welcome page with NodoLeads branding
-- **Authentication**: Secure signup/login with password visibility toggle and Google OAuth
+- **Authentication**: Secure signup/login with password visibility toggle
 - **Dashboard**: Comprehensive analytics with charts and lead statistics
 - **QR Code Generation**: Create QR codes and links for lead capture forms
 - **Lead Capture Forms**: Public forms that can be accessed via QR codes or links
@@ -49,36 +49,15 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 ```
 
-### 4. Configure Google OAuth (Optional)
+### 4. Configure Site URL (Optional)
 
-To enable Google authentication:
-
-1. Go to your Supabase project dashboard
-2. Navigate to **Authentication** > **Providers**
-3. Enable **Google** provider
-4. Add your Google OAuth credentials:
-   - **Client ID**: From Google Cloud Console
-   - **Client Secret**: From Google Cloud Console
-5. Set the redirect URL to: `https://your-project-ref.supabase.co/auth/v1/callback`
-
-### 4.1 Configure Site URL for OAuth Redirects
-
-Add your deployment URL so redirects work in production and don't fall back to localhost:
+Add your deployment URL for proper redirects in production:
 
 ```env
 NEXT_PUBLIC_SITE_URL=https://your-domain.com
 ```
 
 On Vercel, you can also rely on `VERCEL_URL` which is set automatically, but setting `NEXT_PUBLIC_SITE_URL` is recommended for custom domains and other hosts.
-
-**To get Google OAuth credentials:**
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Create a new project or select existing one
-3. Enable Google+ API
-4. Go to **Credentials** > **Create Credentials** > **OAuth 2.0 Client ID**
-5. Add authorized redirect URIs:
-   - `https://your-project-ref.supabase.co/auth/v1/callback`
-   - `http://localhost:3001/auth/callback` (for development)
 
 ### 5. Set up Database Tables
 
