@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, ArrowLeft } from "lucide-react";
 
 export default function LeadFormPage() {
   const params = useParams();
   const formId = params.id as string;
-  const [form, setForm] = useState<{ id: string; name: string } | null>(null);
+  const [form, setForm] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -33,7 +33,11 @@ export default function LeadFormPage() {
     "Other"
   ];
 
-  const fetchForm = useCallback(async () => {
+  useEffect(() => {
+    fetchForm();
+  }, [formId]);
+
+  const fetchForm = async () => {
     try {
       const { data, error } = await supabase
         .from('lead_forms')
@@ -49,11 +53,7 @@ export default function LeadFormPage() {
     } finally {
       setLoading(false);
     }
-  }, [formId]);
-
-  useEffect(() => {
-    fetchForm();
-  }, [formId, fetchForm]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +104,7 @@ export default function LeadFormPage() {
       }
 
       setSubmitted(true);
-    } catch (error: unknown) {
+    } catch (error: any) {
       console.error('Unexpected error:', error);
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -128,7 +128,7 @@ export default function LeadFormPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-600 text-xl mb-4">Form Not Found</div>
-          <p className="text-gray-600">The form you&apos;re looking for doesn&apos;t exist or has been removed.</p>
+          <p className="text-gray-600">The form you're looking for doesn't exist or has been removed.</p>
         </div>
       </div>
     );
@@ -142,7 +142,7 @@ export default function LeadFormPage() {
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Thank You!</h2>
             <p className="text-gray-600 mb-8">
-              Your information has been submitted successfully. We&apos;ll be in touch soon!
+              Your information has been submitted successfully. We'll be in touch soon!
             </p>
             <button
               onClick={() => window.close()}
@@ -175,7 +175,7 @@ export default function LeadFormPage() {
                 Get In Touch
               </h2>
               <p className="text-gray-600">
-                Fill out the form below and we&apos;ll get back to you as soon as possible.
+                Fill out the form below and we'll get back to you as soon as possible.
               </p>
             </div>
 

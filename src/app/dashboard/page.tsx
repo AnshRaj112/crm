@@ -1,9 +1,6 @@
 "use client";
 
-// Force dynamic rendering to avoid prerendering issues with Supabase
-export const dynamic = 'force-dynamic';
-
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -31,33 +28,35 @@ interface Lead {
   is_manual: boolean;
 }
 
+interface LeadForm {
+  id: string;
+  name: string;
+  created_at: string;
+}
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<{ id: string; user_metadata?: { first_name?: string }; email?: string } | null>(null);
+  const [user, setUser] = useState<any>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
-  const checkUser = useCallback(async () => {
-    try {
-      const response = await fetch('/api/auth/me');
-      const data = await response.json();
+  useEffect(() => {
+    checkUser();
+    fetchLeads();
+  }, []);
 
-      if (!response.ok) {
-        router.push('/login');
-        return;
-      }
-
-      setUser(data.user);
-    } catch (error) {
-      console.error('Error checking user:', error);
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
       router.push('/login');
+      return;
     }
-  }, [router]);
+    setUser(user);
+  };
 
-  const fetchLeads = useCallback(async () => {
+  const fetchLeads = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -85,23 +84,11 @@ export default function DashboardPage() {
       setLeads([]);
     }
     setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    checkUser();
-    fetchLeads();
-  }, [checkUser, fetchLeads]);
+  };
 
   const handleSignOut = async () => {
-    try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-      });
-      router.push('/');
-      router.refresh();
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
+    await supabase.auth.signOut();
+    router.push('/');
   };
 
   if (loading) {
@@ -138,9 +125,14 @@ export default function DashboardPage() {
     return new Date(lead.created_at) > monthAgo;
   }).length;
   
+  const thisYearLeads = leads.filter(lead => {
+    const yearAgo = new Date();
+    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+    return new Date(lead.created_at) > yearAgo;
+  }).length;
 
   // Lead sources data for pie chart
-  const sourceCounts = leads.reduce((acc: Record<string, number>, lead) => {
+  const sourceCounts = leads.reduce((acc: any, lead) => {
     acc[lead.source] = (acc[lead.source] || 0) + 1;
     return acc;
   }, {});
@@ -210,7 +202,7 @@ export default function DashboardPage() {
             Welcome, {firstName}!
           </h1>
           <p className="text-gray-600 mt-2">
-            Here&apos;s your lead generation overview
+            Here's your lead generation overview
           </p>
         </div>
 
@@ -277,6 +269,8 @@ export default function DashboardPage() {
                     data={pieData}
                     cx="50%"
                     cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${((percent as number) * 100).toFixed(0)}%`}
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
