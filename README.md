@@ -61,6 +61,16 @@ To enable Google authentication:
    - **Client Secret**: From Google Cloud Console
 5. Set the redirect URL to: `https://your-project-ref.supabase.co/auth/v1/callback`
 
+### 4.1 Configure Site URL for OAuth Redirects
+
+Add your deployment URL so redirects work in production and don't fall back to localhost:
+
+```env
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
+```
+
+On Vercel, you can also rely on `VERCEL_URL` which is set automatically, but setting `NEXT_PUBLIC_SITE_URL` is recommended for custom domains and other hosts.
+
 **To get Google OAuth credentials:**
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing one
@@ -68,7 +78,7 @@ To enable Google authentication:
 4. Go to **Credentials** > **Create Credentials** > **OAuth 2.0 Client ID**
 5. Add authorized redirect URIs:
    - `https://your-project-ref.supabase.co/auth/v1/callback`
-   - `http://localhost:3001/dashboard` (for development)
+   - `http://localhost:3001/auth/callback` (for development)
 
 ### 5. Set up Database Tables
 

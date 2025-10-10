@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { getSiteUrl } from '@/lib/site-url'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const origin = request.nextUrl.origin
+    const origin = getSiteUrl(request)
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as 'google' | 'github' | 'discord',
