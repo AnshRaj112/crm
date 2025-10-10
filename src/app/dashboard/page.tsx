@@ -170,7 +170,7 @@ export default function Dashboard() {
             Welcome back, {firstName}!
           </h1>
           <p className="text-gray-600 mt-2">
-            Here's an overview of your lead performance
+            Here&apos;s an overview of your lead performance
           </p>
         </div>
 

@@ -193,7 +193,8 @@ export default function QRGenerator() {
           {qrCodes.map((qrCode) => (
             <div key={qrCode.id} className="qr-container">
               <h4 className="text-lg font-semibold text-gray-900 mb-4">
-                QR Code #{qrCode.id.split('_').pop()}
+                QR Code #
+                {qrCode.id.split('_').pop()}
               </h4>
               
               {/* QR Code Display */}
@@ -302,7 +303,7 @@ export default function QRGenerator() {
               </div>
               <h4 className="font-medium text-gray-900 mb-2">Capture Leads</h4>
               <p className="text-gray-600 text-sm">
-                When someone scans your QR code, they'll fill out a form and you'll receive the lead
+                When someone scans your QR code, they&apos;ll fill out a form and you&apos;ll receive the lead
               </p>
             </div>
           </div>

@@ -156,7 +156,7 @@ export default function LeadForm() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-4">Thank You!</h1>
           <p className="text-white/80 mb-6">
-            Your information has been submitted successfully. We'll be in touch soon!
+            Your information has been submitted successfully. We&apos;ll be in touch soon!
           </p>
           <button
             onClick={() => setSuccess(false)}
@@ -189,7 +189,7 @@ export default function LeadForm() {
               Get in Touch
             </h2>
             <p className="auth-subtitle mt-2">
-              Please fill out the form below and we'll get back to you soon.
+              Please fill out the form below and we&apos;ll get back to you soon.
             </p>
           </div>
 
