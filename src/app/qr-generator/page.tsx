@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 export default function QRGeneratorPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string } | null>(null);
   const [formName, setFormName] = useState("");
   const [generatedUrl, setGeneratedUrl] = useState("");
   const [loading, setLoading] = useState(true);
@@ -22,11 +22,7 @@ export default function QRGeneratorPage() {
   const [copied, setCopied] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
@@ -34,7 +30,11 @@ export default function QRGeneratorPage() {
     }
     setUser(user);
     setLoading(false);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const generateQR = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +47,7 @@ export default function QRGeneratorPage() {
       const { data: formData, error: formError } = await supabase
         .from('lead_forms')
         .insert({
-          user_id: user.id,
+          user_id: user?.id || '',
           name: formName,
         })
         .select()
@@ -294,7 +294,7 @@ export default function QRGeneratorPage() {
                 <span className="text-blue-600 font-bold">3</span>
               </div>
               <h4 className="font-medium text-blue-900 mb-1">Collect Leads</h4>
-              <p className="text-sm text-blue-700">When people scan your QR code, they'll fill out your form and become leads</p>
+              <p className="text-sm text-blue-700">When people scan your QR code, they&apos;ll fill out your form and become leads</p>
             </div>
           </div>
         </div>
