@@ -31,7 +31,6 @@ interface Lead {
 }
 
 export default function LeadsPage() {
-  const [user, setUser] = useState<any>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -78,7 +77,6 @@ export default function LeadsPage() {
       router.push('/login');
       return;
     }
-    setUser(user);
     fetchLeads();
   };
 

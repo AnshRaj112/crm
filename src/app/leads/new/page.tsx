@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function NewLeadPage() {
+  const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
