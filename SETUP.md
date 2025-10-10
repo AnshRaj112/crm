@@ -1,120 +1,77 @@
-# NodoLeads Setup Instructions
+# NodoLeads CRM Setup Guide
 
 ## Environment Variables
 
 Create a `.env.local` file in the root directory with the following variables:
 
-```
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
-```
-
-## Supabase Database Setup
-
-You need to create the following tables in your Supabase database:
-
-### 1. user_profiles table
-```sql
-CREATE TABLE user_profiles (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  full_name TEXT,
-  contact_number TEXT,
-  email TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-### 2. qr_codes table
-```sql
-CREATE TABLE qr_codes (
-  id TEXT PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  qr_code TEXT,
-  form_url TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-### 3. leads table
-```sql
-CREATE TABLE leads (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  qr_code_id TEXT REFERENCES qr_codes(id) ON DELETE SET NULL,
-  business_name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  contact_number TEXT NOT NULL,
-  source TEXT NOT NULL,
-  status TEXT DEFAULT 'new',
-  notes TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-```
-
-### 4. Row Level Security (RLS) Policies
-
-Enable RLS on all tables and create policies:
-
-```sql
--- Enable RLS
-ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE qr_codes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
-
--- user_profiles policies
-CREATE POLICY "Users can view own profile" ON user_profiles FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own profile" ON user_profiles FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own profile" ON user_profiles FOR UPDATE USING (auth.uid() = user_id);
-
--- qr_codes policies
-CREATE POLICY "Users can view own qr codes" ON qr_codes FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own qr codes" ON qr_codes FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own qr codes" ON qr_codes FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own qr codes" ON qr_codes FOR DELETE USING (auth.uid() = user_id);
-
--- leads policies
-CREATE POLICY "Users can view own leads" ON leads FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can insert own leads" ON leads FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own leads" ON leads FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own leads" ON leads FOR DELETE USING (auth.uid() = user_id);
-
--- Allow public to insert leads (for the public lead form)
-CREATE POLICY "Public can insert leads" ON leads FOR INSERT WITH CHECK (true);
-```
-
-## Running the Application
-
-1. Install dependencies:
 ```bash
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+# Optional: Supabase Service Role Key (for admin operations)
+SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+```
+
+### Example:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+
+## Supabase Setup
+
+1. Create a new Supabase project at [supabase.com](https://supabase.com)
+2. Go to your project's SQL Editor
+3. Copy and paste the contents of `database_schema.sql`
+4. Execute the SQL to create all tables, indexes, and policies
+5. Go to Settings > API to get your project URL and anon key
+6. Add these to your `.env.local` file
+
+## Google OAuth Setup (Optional)
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Create a new project or select existing one
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials
+5. Add authorized redirect URIs:
+   - `http://localhost:3000/auth/callback` (development)
+   - `https://yourdomain.com/auth/callback` (production)
+6. Add the client ID to Supabase Auth settings
+
+## Development
+
+```bash
+# Install dependencies
 npm install
-```
 
-2. Start the development server:
-```bash
+# Start development server
 npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+## Production Deployment
 
-## Features
+1. Build the application: `npm run build`
+2. Deploy to your preferred platform (Vercel, Netlify, etc.)
+3. Update environment variables in your deployment platform
+4. Ensure Supabase RLS policies are properly configured
+5. Test all functionality in production environment
 
-- **Landing Page**: Welcome page with NodoLeads branding
-- **Authentication**: Sign up and login with email/password or Google OAuth
-- **Dashboard**: Overview of lead statistics and recent activity
-- **QR Code Generator**: Create unique QR codes for lead capture
-- **Lead Forms**: Public forms accessible via QR codes
-- **Lead Management**: View, filter, and update lead statuses
-- **Manual Lead Creation**: Add leads manually
-- **Analytics**: Track lead sources and performance
+## Troubleshooting
 
-## Tech Stack
+### Common Issues
 
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- Supabase (Authentication & Database)
-- React QR Code
-- Recharts (for analytics)
+1. **Supabase connection errors**: Check your environment variables
+2. **Authentication not working**: Verify Supabase Auth settings
+3. **Database errors**: Ensure all SQL schema has been executed
+4. **QR codes not generating**: Check if crypto.randomUUID() is available
+
+### Support
+
+For technical support, contact the Exsolvia development team.
