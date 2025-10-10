@@ -142,7 +142,7 @@ export default function LeadFormPage() {
             <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-4" />
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Thank You!</h2>
             <p className="text-gray-600 mb-8">
-              Your information has been submitted successfully. We'll be in touch soon!
+              Your information has been submitted successfully. We&apos;ll be in touch soon!
             </p>
             <button
               onClick={() => window.close()}
@@ -175,7 +175,7 @@ export default function LeadFormPage() {
                 Get In Touch
               </h2>
               <p className="text-gray-600">
-                Fill out the form below and we'll get back to you as soon as possible.
+                Fill out the form below and we&apos;ll get back to you as soon as possible.
               </p>
             </div>
 
