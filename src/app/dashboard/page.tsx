@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -28,33 +28,28 @@ interface Lead {
   is_manual: boolean;
 }
 
-interface LeadForm {
-  id: string;
-  name: string;
-  created_at: string;
-}
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ user_metadata?: { first_name?: string }; email?: string } | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
-  useEffect(() => {
-    checkUser();
-    fetchLeads();
-  }, []);
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
       return;
     }
     setUser(user);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkUser();
+    fetchLeads();
+  }, [checkUser]);
 
   const fetchLeads = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -125,17 +120,12 @@ export default function DashboardPage() {
     return new Date(lead.created_at) > monthAgo;
   }).length;
   
-  const thisYearLeads = leads.filter(lead => {
-    const yearAgo = new Date();
-    yearAgo.setFullYear(yearAgo.getFullYear() - 1);
-    return new Date(lead.created_at) > yearAgo;
-  }).length;
 
   // Lead sources data for pie chart
-  const sourceCounts = leads.reduce((acc: any, lead) => {
+  const sourceCounts = leads.reduce((acc: Record<string, number>, lead) => {
     acc[lead.source] = (acc[lead.source] || 0) + 1;
     return acc;
-  }, {});
+  }, {} as Record<string, number>);
 
   const pieData = Object.entries(sourceCounts).map(([source, count]) => ({
     name: source,
@@ -202,7 +192,7 @@ export default function DashboardPage() {
             Welcome, {firstName}!
           </h1>
           <p className="text-gray-600 mt-2">
-            Here's your lead generation overview
+            Here&apos;s your lead generation overview
           </p>
         </div>
 

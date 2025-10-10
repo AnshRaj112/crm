@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { CheckCircle, ArrowLeft } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 
 export default function LeadFormPage() {
   const params = useParams();
   const formId = params.id as string;
-  const [form, setForm] = useState<any>(null);
+  const [form, setForm] = useState<{ id: string; name: string; user_id: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -33,11 +33,7 @@ export default function LeadFormPage() {
     "Other"
   ];
 
-  useEffect(() => {
-    fetchForm();
-  }, [formId]);
-
-  const fetchForm = async () => {
+  const fetchForm = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('lead_forms')
@@ -53,7 +49,11 @@ export default function LeadFormPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [formId]);
+
+  useEffect(() => {
+    fetchForm();
+  }, [fetchForm]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,7 +104,7 @@ export default function LeadFormPage() {
       }
 
       setSubmitted(true);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unexpected error:', error);
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -128,7 +128,7 @@ export default function LeadFormPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-600 text-xl mb-4">Form Not Found</div>
-          <p className="text-gray-600">The form you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-600">The form you&apos;re looking for doesn&apos;t exist or has been removed.</p>
         </div>
       </div>
     );
