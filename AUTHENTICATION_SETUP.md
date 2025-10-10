@@ -1,168 +1,190 @@
 # Authentication Setup Guide
 
-This document outlines the complete authentication system setup for your CRM application with Google OAuth and proper production URL handling.
+This guide explains how to set up authentication for your Next.js CRM application with Supabase.
 
-## Features Implemented
+## Environment Variables
 
-### ✅ Google OAuth Integration
-- Google Sign-In/Sign-Up buttons on both login and signup pages
-- Proper OAuth callback handling with error management
-- Automatic redirect to dashboard after successful authentication
+Create a `.env.local` file in your project root with the following variables:
 
-### ✅ Production URL Handling
-- Dynamic site URL detection using `getSiteUrl()` utility
-- Proper redirect URLs for OAuth callbacks
-- Support for Vercel deployment and custom domains
-- Environment-based URL configuration
-
-### ✅ Enhanced Authentication Routes
-- Updated login/signup API routes with proper cookie handling
-- OAuth initiation and callback routes
-- Improved logout with redirect handling
-- Consistent error handling across all auth endpoints
-
-### ✅ Security Improvements
-- HTTP-only cookies for session management
-- Secure cookie settings for production
-- Proper session token management
-- CSRF protection through Supabase SSR
-
-## Required Environment Variables
-
-Add these to your `.env.local` file:
-
-```env
+```bash
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url_here
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 
 # Site URL (for production)
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
+NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 
-# Optional: For Vercel deployment
-VERCEL_URL=your-vercel-app-url.vercel.app
+# For development, use:
+# NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
 ## Supabase Configuration
 
-### 1. Enable Google OAuth Provider
+### 1. Database Setup
 
-1. Go to your Supabase dashboard
-2. Navigate to Authentication > Providers
-3. Enable Google provider
-4. Add your Google OAuth credentials:
-   - Client ID
-   - Client Secret
-5. Set redirect URL to: `https://your-domain.com/api/auth/callback`
+Create the following tables in your Supabase database:
 
-### 2. Configure Site URL
+```sql
+-- User profiles table (extends auth.users)
+CREATE TABLE public.user_profiles (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  full_name TEXT,
+  contact_number TEXT,
+  email TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-In Supabase dashboard:
-1. Go to Authentication > URL Configuration
-2. Set Site URL to your production domain
-3. Add redirect URLs for development and production
+-- QR codes table
+CREATE TABLE public.qr_codes (
+  id TEXT PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  qr_code TEXT,
+  form_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-## File Structure
+-- Leads table
+CREATE TABLE public.leads (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  qr_code_id TEXT REFERENCES qr_codes(id) ON DELETE SET NULL,
+  business_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  contact_number TEXT NOT NULL,
+  source TEXT NOT NULL,
+  status TEXT DEFAULT 'new',
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
+-- Enable Row Level Security on all tables
+ALTER TABLE public.user_profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.qr_codes ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
+
+-- User profiles policies
+CREATE POLICY "Users can view own profile" ON public.user_profiles
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own profile" ON public.user_profiles
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own profile" ON public.user_profiles
+  FOR UPDATE USING (auth.uid() = user_id);
+
+-- QR codes policies
+CREATE POLICY "Users can view own QR codes" ON public.qr_codes
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own QR codes" ON public.qr_codes
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own QR codes" ON public.qr_codes
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- Leads policies
+CREATE POLICY "Users can view own leads" ON public.leads
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own leads" ON public.leads
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own leads" ON public.leads
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own leads" ON public.leads
+  FOR DELETE USING (auth.uid() = user_id);
 ```
-src/
-├── app/
-│   ├── api/
-│   │   └── auth/
-│   │       ├── callback/route.ts      # OAuth callback handler
-│   │       ├── login/route.ts         # Email login
-│   │       ├── logout/route.ts        # Logout with redirect
-│   │       ├── oauth/route.ts         # OAuth initiation
-│   │       └── signup/route.ts        # Email signup
-│   ├── auth/
-│   │   └── auth-code-error/page.tsx   # OAuth error page
-│   ├── login/page.tsx                 # Login page with Google OAuth
-│   └── signup/page.tsx                # Signup page with Google OAuth
-├── lib/
-│   ├── auth-utils.ts                  # Authentication utilities
-│   ├── site-url.ts                    # URL handling utility
-│   ├── supabase.ts                    # Client-side Supabase
-│   └── supabase-server.ts             # Server-side Supabase
-└── middleware.ts                       # Auth middleware
-```
 
-## Usage Examples
+### 2. Authentication Providers
 
-### Client-Side Authentication
+In your Supabase dashboard:
 
-```typescript
-import { signInWithEmail, signInWithGoogle, signOut } from '@/lib/auth-utils'
+1. Go to Authentication > Providers
+2. Enable Email provider
+3. Configure Google OAuth (if needed):
+   - Enable Google provider
+   - Add your OAuth credentials
+   - Set redirect URL to: `https://yourdomain.com/auth/callback`
 
-// Email login
-const result = await signInWithEmail(email, password)
+### 3. URL Configuration
 
-// Google OAuth
-const result = await signInWithGoogle('/dashboard')
+In Supabase Dashboard > Authentication > URL Configuration:
 
-// Logout
-await signOut()
-```
+- **Site URL**: `https://yourdomain.com` (or `http://localhost:3000` for development)
+- **Redirect URLs**: 
+  - `https://yourdomain.com/auth/callback`
+  - `http://localhost:3000/auth/callback` (for development)
 
-### Server-Side Authentication
+## API Routes
 
-```typescript
-import { createClient } from '@/lib/supabase-server'
+The following API routes have been created:
 
-const supabase = await createClient()
-const { data: { user } } = await supabase.auth.getUser()
-```
+- `POST /api/auth/login` - Email/password login
+- `POST /api/auth/signup` - User registration
+- `POST /api/auth/oauth` - OAuth provider login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/user` - Get current user
+- `GET /auth/callback` - OAuth callback handler
 
-## Deployment Checklist
+## Production Deployment
 
-### Before Deploying to Production:
+### Vercel Deployment
 
-1. ✅ Set `NEXT_PUBLIC_SITE_URL` environment variable
-2. ✅ Configure Google OAuth in Supabase dashboard
-3. ✅ Update Supabase Site URL configuration
-4. ✅ Test OAuth flow in staging environment
-5. ✅ Verify redirect URLs work correctly
+1. Set environment variables in Vercel dashboard
+2. Ensure `NEXT_PUBLIC_SITE_URL` is set to your production domain
+3. Update Supabase redirect URLs to match your production domain
 
-### Environment-Specific URLs:
+### Other Platforms
 
-- **Development**: `http://localhost:3000`
-- **Staging**: `https://your-staging-domain.com`
-- **Production**: `https://your-production-domain.com`
+1. Set the same environment variables
+2. Ensure your domain is properly configured in Supabase
+3. Update redirect URLs accordingly
+
+## Testing
+
+### Development
+
+1. Run `npm run dev`
+2. Navigate to `http://localhost:3000/login`
+3. Test email/password login
+4. Test Google OAuth (if configured)
+
+### Production
+
+1. Deploy your application
+2. Test authentication on your production domain
+3. Verify OAuth callbacks work correctly
 
 ## Troubleshooting
 
-### Common Issues:
+### Common Issues
 
-1. **OAuth redirects to localhost in production**
-   - Ensure `NEXT_PUBLIC_SITE_URL` is set correctly
-   - Check Supabase redirect URL configuration
+1. **OAuth not working**: Check redirect URLs in Supabase dashboard
+2. **Session not persisting**: Verify middleware configuration
+3. **CORS errors**: Ensure proper domain configuration
 
-2. **Google OAuth not working**
-   - Verify Google OAuth credentials in Supabase
-   - Check if Google Console has correct redirect URIs
+### Debug Mode
 
-3. **Session not persisting**
-   - Check cookie settings in auth routes
-   - Verify middleware configuration
+Add logging to API routes for debugging:
 
-### Debug Mode:
-
-Enable debug logging by setting:
-```env
-NODE_ENV=development
+```typescript
+console.log('Authentication attempt:', { email, provider });
 ```
 
-## Security Considerations
+## Security Notes
 
-- All authentication cookies are HTTP-only and secure in production
-- OAuth state parameters are handled by Supabase
-- CSRF protection through Supabase SSR middleware
-- Session tokens are properly managed and refreshed
+- Never expose Supabase service role key in client-side code
+- Use environment variables for all sensitive configuration
+- Enable Row Level Security on all database tables
+- Regularly rotate API keys
 
 ## Next Steps
 
-Consider implementing:
-- Password reset functionality
-- Email verification
-- Multi-factor authentication
-- Role-based access control
-- Session management dashboard
+- Implement password reset functionality
+- Add email verification
+- Set up user profile management
+- Configure additional OAuth providers as needed

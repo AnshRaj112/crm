@@ -1,222 +1,36 @@
-# NodoLeads - Lead Generation CRM
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A powerful CRM platform for lead generation, built with Next.js and Supabase.
+## Getting Started
 
-## Features
-
-- **Landing Page**: Beautiful welcome page with NodoLeads branding
-- **Authentication**: Secure signup/login with password visibility toggle
-- **Dashboard**: Comprehensive analytics with charts and lead statistics
-- **QR Code Generation**: Create QR codes and links for lead capture forms
-- **Lead Capture Forms**: Public forms that can be accessed via QR codes or links
-- **Manual Lead Entry**: Add leads manually with detailed information
-- **Lead Management**: View, filter, and update lead statuses
-- **Analytics**: Track lead sources, conversion rates, and performance metrics
-
-## Tech Stack
-
-- **Frontend**: Next.js 15, React 19, TypeScript
-- **Styling**: Tailwind CSS
-- **Database**: Supabase (PostgreSQL)
-- **Authentication**: Supabase Auth
-- **Charts**: Recharts
-- **QR Codes**: qrcode.react
-- **Icons**: Lucide React
-
-## Setup Instructions
-
-### 1. Clone the Repository
-
-```bash
-git clone <repository-url>
-cd crm
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Set up Supabase
-
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Get your project URL and anon key from the project settings
-3. Create a `.env.local` file in the root directory:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### 4. Configure Site URL (Optional)
-
-Add your deployment URL for proper redirects in production:
-
-```env
-NEXT_PUBLIC_SITE_URL=https://your-domain.com
-```
-
-On Vercel, you can also rely on `VERCEL_URL` which is set automatically, but setting `NEXT_PUBLIC_SITE_URL` is recommended for custom domains and other hosts.
-
-### 5. Set up Database Tables
-
-Run these SQL commands in your Supabase SQL editor:
-
-```sql
--- Create leads table
-CREATE TABLE leads (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  business_name TEXT NOT NULL,
-  contact_name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  source TEXT NOT NULL,
-  status TEXT DEFAULT 'new' CHECK (status IN ('new', 'contacted', 'interested', 'on_hold', 'declined', 'converted')),
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  form_id UUID,
-  is_manual BOOLEAN DEFAULT false
-);
-
--- Create lead_forms table
-CREATE TABLE lead_forms (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Enable Row Level Security
-ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE lead_forms ENABLE ROW LEVEL SECURITY;
-
--- Create policies for leads table
-CREATE POLICY "Users can view their own leads" ON leads
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own leads" ON leads
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own leads" ON leads
-  FOR UPDATE USING (auth.uid() = user_id);
-
--- Create policies for lead_forms table
-CREATE POLICY "Users can view their own forms" ON lead_forms
-  FOR SELECT USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can insert their own forms" ON lead_forms
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can update their own forms" ON lead_forms
-  FOR UPDATE USING (auth.uid() = user_id);
-
--- Allow public access to forms for lead submission
-CREATE POLICY "Public can view forms for lead submission" ON lead_forms
-  FOR SELECT USING (true);
-```
-
-### 6. Run the Development Server
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-Open [http://localhost:3001](http://localhost:3001) in your browser (or the port shown in your terminal).
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### 7. Test Your Application
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-After setting up your Supabase database, try creating a QR code or adding a manual lead to verify everything is working correctly.
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Usage
+## Learn More
 
-### 1. Sign Up
-- Visit the landing page and click "Get Started"
-- Fill out the signup form with your details
-- You'll be redirected to the dashboard after successful registration
+To learn more about Next.js, take a look at the following resources:
 
-### 2. Generate QR Codes
-- Go to "Generate QR Code" from the dashboard
-- Create a new form with a descriptive name
-- Download the QR code or copy the link to share
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-### 3. Capture Leads
-- Share your QR code or link on marketing materials
-- When people scan/click, they'll fill out your lead form
-- Leads will automatically appear in your dashboard
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### 4. Manage Leads
-- View all leads in the "All Leads" section
-- Filter by status, source, or type
-- Update lead status as you progress through your sales funnel
-- Add leads manually when needed
+## Deploy on Vercel
 
-## Lead Statuses
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-- **New**: Just received the lead
-- **Contacted**: Initial contact made
-- **Interested**: Lead shows interest
-- **On Hold**: Lead is considering
-- **Declined**: Lead is not interested
-- **Converted**: Lead became a customer
-
-## Lead Sources
-
-The system tracks leads from various sources:
-- Facebook
-- Instagram
-- X (Twitter)
-- LinkedIn
-- YouTube
-- Google Search
-- Referral
-- Manual Entry
-- Other
-
-## Features Overview
-
-### Dashboard
-- Daily, weekly, monthly, and yearly lead statistics
-- Lead source pie chart
-- Weekly leads bar chart
-- Latest leads overview
-- Quick action buttons
-
-### QR Code Generator
-- Create unique QR codes for each form
-- Download QR codes as PNG images
-- Copy shareable links
-- Instructions for usage
-
-### Lead Capture Forms
-- Mobile-responsive design
-- Clean, professional appearance
-- Required field validation
-- Success confirmation
-
-### Lead Management
-- Advanced filtering and search
-- Status updates with dropdown
-- Detailed lead information
-- Sortable by date
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License.
-
-## Support
-
-For support, please contact the Exsolvia team.
-
----
-
-**NodoLeads** - Product of Exsolvia
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

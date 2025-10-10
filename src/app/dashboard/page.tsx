@@ -1,183 +1,160 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { 
-  Users, 
-  TrendingUp, 
-  Calendar, 
-  Clock,
-  QrCode,
-  Plus,
-  LogOut,
-  Eye
-} from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../utils/supabase';
 
-interface Lead {
-  id: string;
-  business_name: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  source: string;
-  status: string;
-  created_at: string;
-  is_manual: boolean;
+interface LeadStats {
+  daily: number;
+  weekly: number;
+  monthly: number;
+  yearly: number;
 }
 
+interface LeadSource {
+  source: string;
+  count: number;
+}
 
-export default function DashboardPage() {
-  const [user, setUser] = useState<{ user_metadata?: { first_name?: string }; email?: string } | null>(null);
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
+interface RecentLead {
+  id: string;
+  business_name: string;
+  email: string;
+  contact_number: string;
+  source: string;
+  created_at: string;
+}
+
+export default function Dashboard() {
+  const { user, userProfile, signOut } = useAuth();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [leadStats, setLeadStats] = useState<LeadStats>({
+    daily: 0,
+    weekly: 0,
+    monthly: 0,
+    yearly: 0
+  });
+  const [leadSources, setLeadSources] = useState<LeadSource[]>([]);
+  const [recentLeads, setRecentLeads] = useState<RecentLead[]>([]);
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
-
-  const checkUser = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+  useEffect(() => {
     if (!user) {
       router.push('/login');
       return;
     }
-    setUser(user);
-  }, [router]);
 
-  useEffect(() => {
-    checkUser();
-    fetchLeads();
-  }, [checkUser]);
+    fetchDashboardData();
+  }, [user, router]);
 
-  const fetchLeads = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+  const fetchDashboardData = async () => {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      // Fetch lead statistics
+      const { data: stats } = await supabase
         .from('leads')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+        .select('created_at')
+        .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error fetching leads:', error);
-        // If table doesn't exist, just set empty array
-        if (error.code === 'PGRST116' || error.message?.includes('relation "leads" does not exist')) {
-          console.log('Leads table not found - please run the database setup SQL commands');
-          setLeads([]);
-        } else {
-          setLeads([]);
-        }
-      } else {
-        setLeads(data || []);
+      if (stats) {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+        const monthAgo = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+        const yearAgo = new Date(today.getTime() - 365 * 24 * 60 * 60 * 1000);
+
+        const daily = stats.filter(lead => new Date(lead.created_at) >= today).length;
+        const weekly = stats.filter(lead => new Date(lead.created_at) >= weekAgo).length;
+        const monthly = stats.filter(lead => new Date(lead.created_at) >= monthAgo).length;
+        const yearly = stats.filter(lead => new Date(lead.created_at) >= yearAgo).length;
+
+        setLeadStats({ daily, weekly, monthly, yearly });
       }
-    } catch (err) {
-      console.error('Unexpected error fetching leads:', err);
-      setLeads([]);
+
+      // Fetch lead sources
+      const { data: sources } = await supabase
+        .from('leads')
+        .select('source')
+        .eq('user_id', user.id);
+
+      if (sources) {
+        const sourceCounts: { [key: string]: number } = {};
+        sources.forEach(lead => {
+          sourceCounts[lead.source] = (sourceCounts[lead.source] || 0) + 1;
+        });
+
+        const sourceArray = Object.entries(sourceCounts).map(([source, count]) => ({
+          source,
+          count
+        }));
+
+        setLeadSources(sourceArray);
+      }
+
+      // Fetch recent leads
+      const { data: recent } = await supabase
+        .from('leads')
+        .select('id, business_name, email, contact_number, source, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      if (recent) {
+        setRecentLeads(recent);
+      }
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     router.push('/');
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
-  if (!user) return null;
-
-  const firstName = user.user_metadata?.first_name || user.email?.split('@')[0];
-  
-  // Calculate statistics
-  const totalLeads = leads.length;
-  const todayLeads = leads.filter(lead => {
-    const today = new Date().toDateString();
-    return new Date(lead.created_at).toDateString() === today;
-  }).length;
-  
-  const thisWeekLeads = leads.filter(lead => {
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-    return new Date(lead.created_at) > weekAgo;
-  }).length;
-  
-  const thisMonthLeads = leads.filter(lead => {
-    const monthAgo = new Date();
-    monthAgo.setMonth(monthAgo.getMonth() - 1);
-    return new Date(lead.created_at) > monthAgo;
-  }).length;
-  
-
-  // Lead sources data for pie chart
-  const sourceCounts = leads.reduce((acc: Record<string, number>, lead) => {
-    acc[lead.source] = (acc[lead.source] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const pieData = Object.entries(sourceCounts).map(([source, count]) => ({
-    name: source,
-    value: count,
-  }));
-
-  // Weekly leads data for bar chart
-  const weeklyData = [];
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
-    const dayLeads = leads.filter(lead => {
-      return new Date(lead.created_at).toDateString() === date.toDateString();
-    }).length;
-    weeklyData.push({ name: dayName, leads: dayLeads });
-  }
-
-  // Latest leads
-  const latestLeads = leads.slice(0, 5);
+  const firstName = userProfile?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User';
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Link href="/dashboard" className="text-2xl font-bold text-blue-600">
-                NodoLeads
-              </Link>
+              <h1 className="text-2xl font-bold text-gray-900">NodoLeads</h1>
+              <span className="ml-2 text-sm text-gray-500">Dashboard</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link
-                href="/leads"
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                <Users className="w-4 h-4 inline mr-1" />
+              <Link href="/leads" className="nav-link">
                 All Leads
               </Link>
-              <Link
-                href="/leads/new"
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                <Plus className="w-4 h-4 inline mr-1" />
-                Add Lead
+              <Link href="/create-lead" className="nav-link">
+                Create Lead
+              </Link>
+              <Link href="/qr-generator" className="nav-link">
+                QR Generator
               </Link>
               <button
                 onClick={handleSignOut}
-                className="text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
               >
-                <LogOut className="w-4 h-4 inline mr-1" />
                 Sign Out
               </button>
             </div>
@@ -185,188 +162,135 @@ export default function DashboardPage() {
         </div>
       </nav>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Header */}
+        {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome, {firstName}!
+            Welcome back, {firstName}!
           </h1>
           <p className="text-gray-600 mt-2">
-            Here&apos;s your lead generation overview
+            Here's an overview of your lead performance
           </p>
         </div>
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Today</p>
-                <p className="text-2xl font-bold text-gray-900">{todayLeads}</p>
-              </div>
-            </div>
+          <div className="stat-card">
+            <div className="stat-number">{leadStats.daily}</div>
+            <div className="stat-label">Leads Today</div>
           </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <TrendingUp className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Week</p>
-                <p className="text-2xl font-bold text-gray-900">{thisWeekLeads}</p>
-              </div>
-            </div>
+          <div className="stat-card">
+            <div className="stat-number">{leadStats.weekly}</div>
+            <div className="stat-label">This Week</div>
           </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <Clock className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-gray-900">{thisMonthLeads}</p>
-              </div>
-            </div>
+          <div className="stat-card">
+            <div className="stat-number">{leadStats.monthly}</div>
+            <div className="stat-label">This Month</div>
           </div>
-
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="bg-orange-100 p-3 rounded-lg">
-                <Users className="w-6 h-6 text-orange-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Leads</p>
-                <p className="text-2xl font-bold text-gray-900">{totalLeads}</p>
-              </div>
-            </div>
+          <div className="stat-card">
+            <div className="stat-number">{leadStats.yearly}</div>
+            <div className="stat-label">This Year</div>
           </div>
         </div>
 
-        {/* Charts Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Lead Sources Pie Chart */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Lead Sources</h3>
-            {pieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${((percent as number) * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {pieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-500">
-                No leads data available
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Lead Sources Chart */}
+          <div className="dashboard-card">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Lead Sources</h3>
+            {leadSources.length > 0 ? (
+              <div className="space-y-4">
+                {leadSources.map((source, index) => (
+                  <div key={source.source} className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <div 
+                        className="w-4 h-4 rounded-full mr-3"
+                        style={{
+                          backgroundColor: [
+                            '#667eea', '#764ba2', '#f093fb', '#f5576c', 
+                            '#4facfe', '#00f2fe', '#43e97b', '#38f9d7'
+                          ][index % 8]
+                        }}
+                      ></div>
+                      <span className="text-gray-700 capitalize">{source.source}</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{source.count}</span>
+                  </div>
+                ))}
               </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">No leads yet. Create your first lead or generate a QR code!</p>
             )}
           </div>
 
-          {/* Weekly Leads Bar Chart */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Leads This Week</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={weeklyData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="leads" fill="#3B82F6" />
-              </BarChart>
-            </ResponsiveContainer>
+          {/* Recent Leads */}
+          <div className="dashboard-card">
+            <h3 className="text-xl font-semibold text-gray-900 mb-6">Recent Leads</h3>
+            {recentLeads.length > 0 ? (
+              <div className="space-y-4">
+                {recentLeads.map((lead) => (
+                  <div key={lead.id} className="border-b border-gray-200 pb-4 last:border-b-0">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h4 className="font-medium text-gray-900">{lead.business_name}</h4>
+                        <p className="text-sm text-gray-600">{lead.email}</p>
+                        <p className="text-sm text-gray-500">{lead.contact_number}</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="inline-block px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full capitalize">
+                          {lead.source}
+                        </span>
+                        <p className="text-xs text-gray-500 mt-1">
+                          {new Date(lead.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-center py-8">No leads yet. Create your first lead!</p>
+            )}
           </div>
         </div>
 
-        {/* Latest Leads */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Latest Leads</h3>
-            <div className="space-y-4">
-              {latestLeads.length > 0 ? (
-                latestLeads.map((lead) => (
-                  <div key={lead.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">{lead.business_name}</p>
-                      <p className="text-sm text-gray-600">{lead.contact_name}</p>
-                      <p className="text-xs text-gray-500">{lead.source}</p>
-                    </div>
-                    <div className="text-right">
-                      <span className={`px-2 py-1 text-xs rounded-full ${
-                        lead.status === 'new' ? 'bg-blue-100 text-blue-800' :
-                        lead.status === 'contacted' ? 'bg-yellow-100 text-yellow-800' :
-                        lead.status === 'interested' ? 'bg-green-100 text-green-800' :
-                        lead.status === 'on_hold' ? 'bg-orange-100 text-orange-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        {lead.status}
-                      </span>
-                      <p className="text-xs text-gray-500 mt-1">
-                        {new Date(lead.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-gray-500 text-center py-8">No leads yet</p>
-              )}
+        {/* Quick Actions */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Link href="/qr-generator" className="dashboard-card hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Generate QR Code</h3>
+              <p className="text-gray-600 text-sm">Create a unique QR code for lead capture</p>
             </div>
-          </div>
+          </Link>
 
-          {/* Quick Actions */}
-          <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="space-y-4">
-              <Link
-                href="/qr-generator"
-                className="flex items-center p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
-              >
-                <QrCode className="w-6 h-6 text-blue-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Generate QR Code</p>
-                  <p className="text-sm text-gray-600">Create a lead capture form</p>
-                </div>
-              </Link>
-              
-              <Link
-                href="/leads/new"
-                className="flex items-center p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-              >
-                <Plus className="w-6 h-6 text-green-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">Add Manual Lead</p>
-                  <p className="text-sm text-gray-600">Create a new lead manually</p>
-                </div>
-              </Link>
-              
-              <Link
-                href="/leads"
-                className="flex items-center p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-              >
-                <Eye className="w-6 h-6 text-purple-600 mr-3" />
-                <div>
-                  <p className="font-medium text-gray-900">View All Leads</p>
-                  <p className="text-sm text-gray-600">Manage your leads</p>
-                </div>
-              </Link>
+          <Link href="/create-lead" className="dashboard-card hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Add Lead Manually</h3>
+              <p className="text-gray-600 text-sm">Create a new lead entry manually</p>
             </div>
-          </div>
+          </Link>
+
+          <Link href="/leads" className="dashboard-card hover:shadow-lg transition-shadow">
+            <div className="text-center">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">View All Leads</h3>
+              <p className="text-gray-600 text-sm">Manage and track all your leads</p>
+            </div>
+          </Link>
         </div>
       </div>
     </div>

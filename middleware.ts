@@ -42,6 +42,7 @@ export async function middleware(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/form') &&
     !request.nextUrl.pathname.startsWith('/api/auth') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
+    !request.nextUrl.pathname.startsWith('/qr-generator') &&
     request.nextUrl.pathname !== '/'
   ) {
     // no user, potentially respond by redirecting the user to the login page

@@ -1,186 +1,195 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { supabase } from "@/lib/supabase";
-import { 
-  Plus,
-  Filter,
-  Search,
-  Edit,
-  Eye,
-  Calendar,
-  Phone,
-  Mail,
-  Building
-} from "lucide-react";
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '../../contexts/AuthContext';
+import { supabase } from '../../utils/supabase';
 
 interface Lead {
   id: string;
   business_name: string;
-  contact_name: string;
   email: string;
-  phone: string;
+  contact_number: string;
   source: string;
-  status: 'new' | 'contacted' | 'interested' | 'on_hold' | 'declined' | 'converted';
+  status: string;
+  notes?: string;
   created_at: string;
-  updated_at: string;
-  is_manual: boolean;
-  form_id?: string;
+  qr_code_id?: string;
 }
 
 export default function LeadsPage() {
-  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [sourceFilter, setSourceFilter] = useState("all");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const router = useRouter();
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+  
+  const [filters, setFilters] = useState({
+    status: '',
+    source: '',
+    search: '',
+    leadType: '', // 'qr' or 'manual'
+  });
 
-  const statusOptions = [
-    { value: "all", label: "All Statuses", color: "gray" },
-    { value: "new", label: "New", color: "blue" },
-    { value: "contacted", label: "Contacted", color: "yellow" },
-    { value: "interested", label: "Interested", color: "green" },
-    { value: "on_hold", label: "On Hold", color: "orange" },
-    { value: "declined", label: "Declined", color: "red" },
-    { value: "converted", label: "Converted", color: "purple" },
+  const statuses = [
+    { value: '', label: 'All Statuses' },
+    { value: 'new', label: 'New' },
+    { value: 'contacted', label: 'Contacted' },
+    { value: 'interested', label: 'Interested' },
+    { value: 'on-hold', label: 'On Hold' },
+    { value: 'declined', label: 'Declined' },
   ];
 
-  const sourceOptions = [
-    "all",
-    "Facebook",
-    "Instagram", 
-    "X (Twitter)",
-    "LinkedIn",
-    "YouTube",
-    "Google Search",
-    "Referral",
-    "Manual Entry",
-    "Other"
+  const sources = [
+    'All Sources',
+    'Manual Entry',
+    'Facebook',
+    'Instagram',
+    'X (Twitter)',
+    'LinkedIn',
+    'YouTube',
+    'Google',
+    'Referral',
+    'Phone Call',
+    'Email',
+    'Other'
   ];
 
-  const fetchLeads = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+  const leadTypes = [
+    { value: '', label: 'All Leads' },
+    { value: 'qr', label: 'From QR Code' },
+    { value: 'manual', label: 'Manual Entry' },
+  ];
 
-    const { data, error } = await supabase
-      .from('leads')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false });
-
-    if (error) {
-      console.error('Error fetching leads:', error);
-    } else {
-      setLeads(data || []);
-    }
-    setLoading(false);
-  }, []);
-
-  const filterLeads = useCallback(() => {
-    let filtered = leads;
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(lead =>
-        lead.business_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.contact_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        lead.phone.includes(searchTerm)
-      );
-    }
-
-    // Status filter
-    if (statusFilter !== "all") {
-      filtered = filtered.filter(lead => lead.status === statusFilter);
-    }
-
-    // Source filter
-    if (sourceFilter !== "all") {
-      filtered = filtered.filter(lead => lead.source === sourceFilter);
-    }
-
-    // Type filter
-    if (typeFilter === "qr") {
-      filtered = filtered.filter(lead => !lead.is_manual);
-    } else if (typeFilter === "manual") {
-      filtered = filtered.filter(lead => lead.is_manual);
-    }
-
-    setFilteredLeads(filtered);
-  }, [leads, searchTerm, statusFilter, sourceFilter, typeFilter]);
-
-  const checkUser = useCallback(async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+  useEffect(() => {
     if (!user) {
       router.push('/login');
       return;
     }
-    setUser(user);
-    fetchLeads();
-  }, [router, fetchLeads]);
 
-  useEffect(() => {
-    checkUser();
-  }, [checkUser]);
+    fetchLeads();
+  }, [user, router]);
 
   useEffect(() => {
     filterLeads();
-  }, [filterLeads]);
+  }, [leads, filters]);
+
+  const fetchLeads = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('leads')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching leads:', error);
+      } else {
+        setLeads(data || []);
+      }
+    } catch (error) {
+      console.error('Error fetching leads:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterLeads = () => {
+    let filtered = [...leads];
+
+    // Filter by status
+    if (filters.status) {
+      filtered = filtered.filter(lead => lead.status === filters.status);
+    }
+
+    // Filter by source
+    if (filters.source && filters.source !== 'All Sources') {
+      filtered = filtered.filter(lead => lead.source === filters.source);
+    }
+
+    // Filter by lead type
+    if (filters.leadType) {
+      if (filters.leadType === 'qr') {
+        filtered = filtered.filter(lead => lead.qr_code_id);
+      } else if (filters.leadType === 'manual') {
+        filtered = filtered.filter(lead => !lead.qr_code_id);
+      }
+    }
+
+    // Filter by search
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase();
+      filtered = filtered.filter(lead =>
+        lead.business_name.toLowerCase().includes(searchLower) ||
+        lead.email.toLowerCase().includes(searchLower) ||
+        lead.contact_number.includes(searchLower)
+      );
+    }
+
+    setFilteredLeads(filtered);
+  };
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
+    setUpdatingStatus(leadId);
+    
     try {
       const { error } = await supabase
         .from('leads')
-        .update({ 
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        })
+        .update({ status: newStatus })
         .eq('id', leadId);
 
-      if (error) throw error;
-
-      // Update local state
-      setLeads(leads.map(lead => 
-        lead.id === leadId 
-          ? { ...lead, status: newStatus as Lead['status'], updated_at: new Date().toISOString() }
-          : lead
-      ));
+      if (error) {
+        console.error('Error updating lead status:', error);
+      } else {
+        setLeads(prev => prev.map(lead =>
+          lead.id === leadId ? { ...lead, status: newStatus } : lead
+        ));
+      }
     } catch (error) {
       console.error('Error updating lead status:', error);
+    } finally {
+      setUpdatingStatus(null);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const statusOption = statusOptions.find(opt => opt.value === status);
-    return statusOption?.color || "gray";
+  const handleFilterChange = (key: string, value: string) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value
+    }));
   };
 
-  const getStatusBadgeClasses = (status: string) => {
-    const color = getStatusColor(status);
-    const baseClasses = "px-2 py-1 text-xs rounded-full font-medium";
-    
-    switch (color) {
-      case "blue": return `${baseClasses} bg-blue-100 text-blue-800`;
-      case "yellow": return `${baseClasses} bg-yellow-100 text-yellow-800`;
-      case "green": return `${baseClasses} bg-green-100 text-green-800`;
-      case "orange": return `${baseClasses} bg-orange-100 text-orange-800`;
-      case "red": return `${baseClasses} bg-red-100 text-red-800`;
-      case "purple": return `${baseClasses} bg-purple-100 text-purple-800`;
-      default: return `${baseClasses} bg-gray-100 text-gray-800`;
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'new':
+        return 'status-badge status-new';
+      case 'contacted':
+        return 'status-badge status-contacted';
+      case 'interested':
+        return 'status-badge status-interested';
+      case 'on-hold':
+        return 'status-badge status-on-hold';
+      case 'declined':
+        return 'status-badge status-declined';
+      default:
+        return 'status-badge status-new';
     }
+  };
+
+  const getStatusLabel = (status: string) => {
+    const statusObj = statuses.find(s => s.value === status);
+    return statusObj ? statusObj.label : status;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading leads...</p>
         </div>
       </div>
@@ -192,219 +201,242 @@ export default function LeadsPage() {
       {/* Navigation */}
       <nav className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+          <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
-              <Link href="/dashboard" className="text-2xl font-bold text-blue-600">
+              <Link href="/dashboard" className="text-2xl font-bold text-gray-900">
                 NodoLeads
               </Link>
+              <span className="ml-2 text-sm text-gray-500">All Leads</span>
             </div>
             <div className="flex items-center space-x-4">
-              <Link
-                href="/leads/new"
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                <Plus className="w-4 h-4 inline mr-1" />
-                Add Lead
-              </Link>
-              <Link
-                href="/dashboard"
-                className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-              >
+              <Link href="/dashboard" className="nav-link">
                 Dashboard
               </Link>
+              <Link href="/create-lead" className="nav-link">
+                Create Lead
+              </Link>
+              <Link href="/qr-generator" className="nav-link">
+                QR Generator
+              </Link>
+              <button
+                onClick={() => signOut().then(() => router.push('/'))}
+                className="text-gray-500 hover:text-gray-700 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Sign Out
+              </button>
             </div>
           </div>
         </div>
       </nav>
 
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">All Leads</h1>
-          <p className="text-gray-600 mt-2">
-            Manage and track all your leads in one place
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">
+              All Leads ({filteredLeads.length})
+            </h1>
+            <p className="text-gray-600 mt-2">
+              Manage and track all your leads
+            </p>
+          </div>
+          <Link href="/create-lead" className="btn-primary">
+            Add New Lead
+          </Link>
         </div>
 
         {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="dashboard-card mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Filters</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            {/* Search */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div>
+              <label className="form-label">Search</label>
               <input
                 type="text"
+                className="form-input"
                 placeholder="Search leads..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
               />
             </div>
-
-            {/* Status Filter */}
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              {statusOptions.map(option => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-
-            {/* Source Filter */}
-            <select
-              value={sourceFilter}
-              onChange={(e) => setSourceFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">All Sources</option>
-              {sourceOptions.slice(1).map(source => (
-                <option key={source} value={source}>
-                  {source}
-                </option>
-              ))}
-            </select>
-
-            {/* Type Filter */}
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">All Types</option>
-              <option value="qr">From QR/Link</option>
-              <option value="manual">Manual Entry</option>
-            </select>
-
-            {/* Results Count */}
-            <div className="flex items-center text-sm text-gray-600">
-              <Filter className="w-4 h-4 mr-2" />
-              {filteredLeads.length} of {leads.length} leads
+            <div>
+              <label className="form-label">Status</label>
+              <select
+                className="form-input"
+                value={filters.status}
+                onChange={(e) => handleFilterChange('status', e.target.value)}
+              >
+                {statuses.map(status => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Source</label>
+              <select
+                className="form-input"
+                value={filters.source}
+                onChange={(e) => handleFilterChange('source', e.target.value)}
+              >
+                {sources.map(source => (
+                  <option key={source} value={source}>
+                    {source}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="form-label">Lead Type</label>
+              <select
+                className="form-input"
+                value={filters.leadType}
+                onChange={(e) => handleFilterChange('leadType', e.target.value)}
+              >
+                {leadTypes.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-end">
+              <button
+                onClick={() => setFilters({ status: '', source: '', search: '', leadType: '' })}
+                className="btn-secondary w-full"
+              >
+                Clear Filters
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Leads List */}
-        <div className="bg-white shadow-sm rounded-lg border border-gray-200">
-          {filteredLeads.length > 0 ? (
+        {/* Leads Table */}
+        <div className="table-container">
+          <div className="table-header">
+            <h3 className="text-lg font-semibold text-gray-900">Leads</h3>
+          </div>
+          
+          {filteredLeads.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                No leads found
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {leads.length === 0 
+                  ? "You don't have any leads yet. Create your first lead or generate a QR code!"
+                  : "Try adjusting your filters to see more leads."
+                }
+              </p>
+              {leads.length === 0 && (
+                <div className="flex justify-center space-x-4">
+                  <Link href="/create-lead" className="btn-primary">
+                    Create Lead
+                  </Link>
+                  <Link href="/qr-generator" className="btn-secondary">
+                    Generate QR Code
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+              <table className="table">
+                <thead>
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Lead Details
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Contact Info
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Source
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
+                    <th>Business Name</th>
+                    <th>Contact</th>
+                    <th>Source</th>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Created</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody>
                   {filteredLeads.map((lead) => (
-                    <tr key={lead.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <Building className="w-5 h-5 text-blue-600" />
-                            </div>
+                    <tr key={lead.id}>
+                      <td>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {lead.business_name}
                           </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {lead.business_name}
+                          {lead.notes && (
+                            <div className="text-sm text-gray-500 mt-1">
+                              {lead.notes.length > 50 
+                                ? `${lead.notes.substring(0, 50)}...` 
+                                : lead.notes
+                              }
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {lead.contact_name}
-                            </div>
-                          </div>
+                          )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900 flex items-center">
-                          <Mail className="w-4 h-4 mr-1 text-gray-400" />
-                          {lead.email}
-                        </div>
-                        <div className="text-sm text-gray-500 flex items-center">
-                          <Phone className="w-4 h-4 mr-1 text-gray-400" />
-                          {lead.phone}
+                      <td>
+                        <div>
+                          <div className="text-gray-900">{lead.email}</div>
+                          <div className="text-sm text-gray-500">{lead.contact_number}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                      <td>
+                        <span className="inline-block px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full capitalize">
                           {lead.source}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          {lead.is_manual ? "Manual Entry" : "QR/Link Form"}
-                        </div>
+                        </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td>
                         <select
+                          className={`${getStatusBadgeClass(lead.status)} text-xs cursor-pointer`}
                           value={lead.status}
                           onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                          className={`text-xs rounded-full border-0 focus:ring-2 focus:ring-blue-500 ${getStatusBadgeClasses(lead.status)}`}
+                          disabled={updatingStatus === lead.id}
                         >
-                          {statusOptions.slice(1).map(option => (
-                            <option key={option.value} value={option.value}>
-                              {option.label}
+                          {statuses.filter(s => s.value).map(status => (
+                            <option key={status.value} value={status.value}>
+                              {status.label}
                             </option>
                           ))}
                         </select>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
+                      <td>
+                        <span className={`inline-block px-2 py-1 text-xs font-medium rounded-full ${
+                          lead.qr_code_id 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-green-100 text-green-800'
+                        }`}>
+                          {lead.qr_code_id ? 'QR Code' : 'Manual'}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="text-sm text-gray-500">
                           {new Date(lead.created_at).toLocaleDateString()}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button className="text-blue-600 hover:text-blue-900 mr-3">
-                          <Eye className="w-4 h-4" />
-                        </button>
-                        <button className="text-gray-600 hover:text-gray-900">
-                          <Edit className="w-4 h-4" />
-                        </button>
+                      <td>
+                        <div className="flex space-x-2">
+                          <a
+                            href={`mailto:${lead.email}`}
+                            className="text-blue-600 hover:text-blue-800 text-sm"
+                          >
+                            Email
+                          </a>
+                          <a
+                            href={`tel:${lead.contact_number}`}
+                            className="text-green-600 hover:text-green-800 text-sm"
+                          >
+                            Call
+                          </a>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <div className="text-gray-400 mb-4">
-                <Building className="w-12 h-12 mx-auto" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No leads found</h3>
-              <p className="text-gray-500 mb-4">
-                {leads.length === 0 
-                  ? "You haven't created any leads yet." 
-                  : "No leads match your current filters."
-                }
-              </p>
-              {leads.length === 0 && (
-                <Link
-                  href="/leads/new"
-                  className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Your First Lead
-                </Link>
-              )}
             </div>
           )}
         </div>
