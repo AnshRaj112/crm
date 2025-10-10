@@ -68,7 +68,7 @@ To enable Google authentication:
 4. Go to **Credentials** > **Create Credentials** > **OAuth 2.0 Client ID**
 5. Add authorized redirect URIs:
    - `https://your-project-ref.supabase.co/auth/v1/callback`
-   - `http://localhost:3000/auth/callback` (for development)
+   - `http://localhost:3001/auth/callback` (for development)
 
 ### 5. Set up Database Tables
 
