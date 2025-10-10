@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { handleGoogleAuth } from "@/lib/auth-helpers";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 export default function SignUpPage() {
@@ -69,7 +68,14 @@ export default function SignUpPage() {
     setError("");
 
     try {
-      await handleGoogleAuth('/dashboard');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      });
+
+      if (error) throw error;
     } catch (error: any) {
       setError(error.message);
       setLoading(false);

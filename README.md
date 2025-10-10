@@ -68,7 +68,7 @@ To enable Google authentication:
 4. Go to **Credentials** > **Create Credentials** > **OAuth 2.0 Client ID**
 5. Add authorized redirect URIs:
    - `https://your-project-ref.supabase.co/auth/v1/callback`
-   - `http://localhost:3001/auth/callback` (for development)
+   - `http://localhost:3001/dashboard` (for development)
 
 ### 5. Set up Database Tables
 
@@ -137,9 +137,9 @@ npm run dev
 
 Open [http://localhost:3001](http://localhost:3001) in your browser (or the port shown in your terminal).
 
-### 7. Test Database Setup
+### 7. Test Your Application
 
-After setting up your Supabase database, visit [http://localhost:3001/test-db](http://localhost:3001/test-db) to verify everything is working correctly.
+After setting up your Supabase database, try creating a QR code or adding a manual lead to verify everything is working correctly.
 
 ## Usage
 
