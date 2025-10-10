@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useLeads } from '../contexts/LeadsContext';
+import { useLeads, LeadCaptureLink } from '../contexts/LeadsContext';
 import { useAuth } from '../contexts/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -15,7 +15,7 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
-  const [generatedLink, setGeneratedLink] = useState<any>(null);
+  const [generatedLink, setGeneratedLink] = useState<LeadCaptureLink | null>(null);
   const [error, setError] = useState('');
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -43,10 +43,10 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
 
       if (error) {
         setError('Failed to generate QR code. Please try again.');
-      } else {
+      } else if (data) {
         setGeneratedLink(data);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to generate QR code. Please try again.');
     } finally {
       setLoading(false);

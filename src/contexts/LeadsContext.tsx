@@ -175,7 +175,9 @@ export function LeadsProvider({ children }: { children: React.ReactNode }) {
       if (sourceData) {
         const sourceCounts: { [key: string]: number } = {};
         sourceData.forEach(lead => {
-          const sourceName = (lead.lead_sources as any)?.name || 'Unknown';
+          const sourceName = Array.isArray(lead.lead_sources) 
+            ? lead.lead_sources[0]?.name || 'Unknown'
+            : (lead.lead_sources as { name: string } | null)?.name || 'Unknown';
           sourceCounts[sourceName] = (sourceCounts[sourceName] || 0) + 1;
         });
 
