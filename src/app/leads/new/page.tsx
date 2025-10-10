@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Save } from "lucide-react";
 
 export default function NewLeadPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -33,11 +33,7 @@ export default function NewLeadPage() {
     "Other"
   ];
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       router.push('/login');
@@ -45,7 +41,11 @@ export default function NewLeadPage() {
     }
     setUser(user);
     setLoading(false);
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +56,7 @@ export default function NewLeadPage() {
       const { error: leadError } = await supabase
         .from('leads')
         .insert({
-          user_id: user.id,
+          user_id: user!.id,
           business_name: formData.businessName,
           contact_name: formData.contactName,
           email: formData.email,
@@ -78,7 +78,7 @@ export default function NewLeadPage() {
       }
 
       router.push('/leads');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Unexpected error creating lead:', error);
       setError('Unexpected error creating lead. Please try again.');
     } finally {

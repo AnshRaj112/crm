@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
@@ -31,7 +31,7 @@ interface Lead {
 }
 
 export default function LeadsPage() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{ id: string; email?: string } | null>(null);
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,25 +64,7 @@ export default function LeadsPage() {
     "Other"
   ];
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  useEffect(() => {
-    filterLeads();
-  }, [leads, searchTerm, statusFilter, sourceFilter, typeFilter]);
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push('/login');
-      return;
-    }
-    setUser(user);
-    fetchLeads();
-  };
-
-  const fetchLeads = async () => {
+  const fetchLeads = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
@@ -98,9 +80,9 @@ export default function LeadsPage() {
       setLeads(data || []);
     }
     setLoading(false);
-  };
+  }, []);
 
-  const filterLeads = () => {
+  const filterLeads = useCallback(() => {
     let filtered = leads;
 
     // Search filter
@@ -131,7 +113,25 @@ export default function LeadsPage() {
     }
 
     setFilteredLeads(filtered);
-  };
+  }, [leads, searchTerm, statusFilter, sourceFilter, typeFilter]);
+
+  const checkUser = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+    setUser(user);
+    fetchLeads();
+  }, [router, fetchLeads]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
+
+  useEffect(() => {
+    filterLeads();
+  }, [filterLeads]);
 
   const updateLeadStatus = async (leadId: string, newStatus: string) => {
     try {
@@ -148,7 +148,7 @@ export default function LeadsPage() {
       // Update local state
       setLeads(leads.map(lead => 
         lead.id === leadId 
-          ? { ...lead, status: newStatus as any, updated_at: new Date().toISOString() }
+          ? { ...lead, status: newStatus as Lead['status'], updated_at: new Date().toISOString() }
           : lead
       ));
     } catch (error) {

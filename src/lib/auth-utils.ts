@@ -6,8 +6,16 @@ export interface AuthError {
 }
 
 export interface AuthResponse {
-  user?: any
-  session?: any
+  user?: {
+    id: string
+    email?: string
+    [key: string]: unknown
+  }
+  session?: {
+    access_token: string
+    refresh_token: string
+    [key: string]: unknown
+  }
   error?: AuthError
 }
 
