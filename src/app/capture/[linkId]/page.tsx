@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import { supabase } from '../../../utils/supabase';
 
@@ -30,13 +30,7 @@ export default function LeadCapturePage() {
     notes: ''
   });
 
-  useEffect(() => {
-    if (linkId) {
-      fetchLinkData();
-    }
-  }, [linkId]);
-
-  const fetchLinkData = async () => {
+  const fetchLinkData = useCallback(async () => {
     if (!supabase) {
       setError('Service not available');
       setLoading(false);
@@ -56,12 +50,18 @@ export default function LeadCapturePage() {
       } else {
         setLinkData(data);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to load form');
     } finally {
       setLoading(false);
     }
-  };
+  }, [linkId]);
+
+  useEffect(() => {
+    if (linkId) {
+      fetchLinkData();
+    }
+  }, [linkId, fetchLinkData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +106,7 @@ export default function LeadCapturePage() {
       } else {
         setSuccess(true);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to submit form. Please try again.');
     } finally {
       setSubmitting(false);
@@ -159,7 +159,7 @@ export default function LeadCapturePage() {
           </div>
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Thank You!</h2>
           <p className="text-gray-600">
-            Your information has been submitted successfully. We'll be in touch soon!
+            Your information has been submitted successfully. We&apos;ll be in touch soon!
           </p>
         </div>
       </div>

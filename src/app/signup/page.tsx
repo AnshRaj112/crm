@@ -63,7 +63,7 @@ export default function SignupPage() {
               Account Created Successfully!
             </h2>
             <p className="mt-2 text-gray-600">
-              Please check your email to verify your account. You'll be redirected shortly.
+              Please check your email to verify your account. You&apos;ll be redirected shortly.
             </p>
           </div>
         </div>

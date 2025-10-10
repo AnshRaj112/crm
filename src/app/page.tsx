@@ -22,10 +22,6 @@ export default function Home() {
   });
   const [creatingLead, setCreatingLead] = useState(false);
 
-  const getDisplayName = () => {
-    if (!user) return '';
-    return user.user_metadata?.full_name || user.email || 'User';
-  };
 
   const getFirstName = () => {
     if (!user) return '';
@@ -251,7 +247,7 @@ export default function Home() {
                     Welcome, {getFirstName()}! 👋
                   </h2>
                   <p className="text-gray-600">
-                    Here's your lead generation overview for today.
+                    Here&apos;s your lead generation overview for today.
                   </p>
                 </div>
               </div>
