@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLeads, LeadCaptureLink } from '../contexts/LeadsContext';
 import { useAuth } from '../contexts/AuthContext';
 import { QRCodeSVG } from 'qrcode.react';
@@ -13,10 +13,20 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
   const { createCaptureLink } = useLeads();
   const { user } = useAuth();
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<LeadCaptureLink | null>(null);
   const [error, setError] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,7 +47,6 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
       const { error, data } = await createCaptureLink({
         user_id: user.id,
         title: title.trim(),
-        description: description.trim() || undefined,
         is_active: true
       });
 
@@ -54,13 +63,14 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className={`rounded-lg p-4 sm:p-6 w-full mx-4 ${isMobile ? 'max-w-sm' : 'max-w-md'} max-h-[90vh] overflow-y-auto`} style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-xl)' }}>
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Generate QR Code</h3>
+          <h3 className="text-lg font-semibold" style={{ color: 'var(--text-main)' }}>Generate QR Code</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="transition-colors duration-200"
+            style={{ color: 'var(--text-muted)' }}
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -77,44 +87,48 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Title *
               </label>
               <input
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md focus:outline-none text-base transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="e.g., Conference Lead Capture"
                 required
+                autoComplete="off"
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
-              <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Optional description for your lead capture form"
-              />
-            </div>
 
-            <div className="flex space-x-3">
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="flex-1 px-4 py-3 border rounded-md touch-manipulation text-base transition-all duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  color: 'var(--text-secondary)',
+                  background: 'var(--card-bg)'
+                }}
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
+                    className="flex-1 px-4 py-3 rounded-md disabled:opacity-50 touch-manipulation text-base transition-all duration-200"
+                style={{ 
+                  background: loading ? 'var(--text-muted)' : 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                  color: 'white',
+                  boxShadow: 'var(--shadow-lg)'
+                }}
               >
                 {loading ? 'Generating...' : 'Generate QR Code'}
               </button>
@@ -128,11 +142,12 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
             </div>
 
             <div className="flex justify-center mb-4">
-              <div className="bg-white p-4 rounded-lg shadow-lg">
+              <div className="bg-white p-2 sm:p-4 rounded-lg shadow-lg">
                 <QRCodeSVG
                   value={generatedLink.public_link}
-                  size={200}
+                  size={isMobile ? 150 : 200}
                   level="M"
+                  includeMargin={true}
                 />
               </div>
             </div>
@@ -149,8 +164,28 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md bg-gray-50 text-sm"
                 />
                 <button
-                  onClick={() => navigator.clipboard.writeText(generatedLink.public_link)}
-                  className="px-3 py-2 bg-indigo-600 text-white rounded-r-md hover:bg-indigo-700 text-sm"
+                  onClick={async () => {
+                    try {
+                      if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(generatedLink.public_link);
+                      } else {
+                        // Fallback for older browsers or non-secure contexts
+                        const textArea = document.createElement('textarea');
+                        textArea.value = generatedLink.public_link;
+                        textArea.style.position = 'fixed';
+                        textArea.style.left = '-999999px';
+                        textArea.style.top = '-999999px';
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                      }
+                    } catch (err) {
+                      console.error('Failed to copy: ', err);
+                    }
+                  }}
+                       className="px-3 py-2 bg-indigo-600 text-white rounded-r-md text-sm touch-manipulation"
                 >
                   Copy
                 </button>
@@ -161,9 +196,8 @@ export default function QRCodeGenerator({ onClose }: QRCodeGeneratorProps) {
               onClick={() => {
                 setGeneratedLink(null);
                 setTitle('');
-                setDescription('');
               }}
-              className="w-full px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+              className="w-full px-4 py-3 bg-indigo-600 text-white rounded-md touch-manipulation text-base"
             >
               Generate Another QR Code
             </button>

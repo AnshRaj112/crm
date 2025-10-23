@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NodoLeads - CRM by Exsolvia",
   description: "The ultimate CRM solution for lead generation, tracking, and conversion with QR codes and analytics.",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no",
 };
 
 export default function RootLayout({
