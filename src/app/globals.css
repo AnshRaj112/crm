@@ -48,6 +48,21 @@ body {
   line-height: 1.6;
 }
 
+/* Loading page animations */
+@keyframes loading-progress {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
 /* Enhanced scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

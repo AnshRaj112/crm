@@ -90,10 +90,54 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading NodoLeads...</p>
+          {/* Animated Logo */}
+          <div className="mb-8">
+            <div className="relative">
+              <div className="animate-pulse">
+                <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
+                <span className="text-sm" style={{ color: 'var(--text-muted)' }}>by Exsolvia</span>
+              </div>
+              {/* Floating particles animation */}
+              <div className="absolute -top-4 -right-4 w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0s' }}></div>
+              <div className="absolute -top-2 -right-8 w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--secondary)', animationDelay: '0.5s' }}></div>
+              <div className="absolute -top-6 -right-2 w-1 h-1 rounded-full animate-bounce" style={{ background: 'var(--success)', animationDelay: '1s' }}></div>
+            </div>
+          </div>
+          
+          {/* Enhanced Loading Spinner */}
+          <div className="relative mb-6">
+            <div className="w-16 h-16 mx-auto relative">
+              {/* Outer ring */}
+              <div className="absolute inset-0 rounded-full border-4 opacity-20" style={{ borderColor: 'var(--border)' }}></div>
+              {/* Animated ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-spin" style={{ borderTopColor: 'var(--primary)', borderRightColor: 'var(--primary)' }}></div>
+              {/* Inner pulsing dot */}
+              <div className="absolute inset-2 rounded-full animate-pulse" style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))' }}></div>
+            </div>
+          </div>
+          
+          {/* Loading text with typewriter effect */}
+          <div className="space-y-2">
+            <p className="text-lg font-medium animate-pulse" style={{ color: 'var(--text-main)' }}>Loading NodoLeads...</p>
+            <div className="flex justify-center space-x-1">
+              <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0s' }}></div>
+              <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="mt-8 w-64 mx-auto">
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+              <div className="h-full rounded-full animate-pulse" style={{ 
+                background: 'linear-gradient(90deg, var(--primary), var(--primary-dark), var(--secondary))',
+                width: '100%',
+                animation: 'loading-progress 2s ease-in-out infinite'
+              }}></div>
+            </div>
+          </div>
         </div>
       </div>
     );
