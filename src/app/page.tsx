@@ -1387,19 +1387,6 @@ export default function Home() {
               </div>
             )}
 
-            <div className="mt-6 flex justify-end space-x-3">
-              <button
-                onClick={() => setShowQRLeads(false)}
-                className="px-4 py-2 border rounded-md transition-colors duration-200"
-                style={{
-                  borderColor: 'var(--border)',
-                  color: 'var(--text-secondary)',
-                  background: 'var(--border-light)'
-                }}
-              >
-                Close
-              </button>
-            </div>
           </div>
         </div>
       )}
