@@ -123,10 +123,54 @@ export default function LeadCapturePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading form...</p>
+          {/* Animated Logo */}
+          <div className="mb-8">
+            <div className="relative">
+              <div className="animate-pulse">
+                <h1 className="text-4xl font-bold mb-2" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
+                <span className="text-sm" style={{ color: 'var(--text-muted)' }}>by Exsolvia</span>
+              </div>
+              {/* Floating particles animation */}
+              <div className="absolute -top-4 -right-4 w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0s' }}></div>
+              <div className="absolute -top-2 -right-8 w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: 'var(--secondary)', animationDelay: '0.5s' }}></div>
+              <div className="absolute -top-6 -right-2 w-1 h-1 rounded-full animate-bounce" style={{ background: 'var(--success)', animationDelay: '1s' }}></div>
+            </div>
+          </div>
+          
+          {/* Enhanced Loading Spinner */}
+          <div className="relative mb-6">
+            <div className="w-16 h-16 mx-auto relative">
+              {/* Outer ring */}
+              <div className="absolute inset-0 rounded-full border-4 opacity-20" style={{ borderColor: 'var(--border)' }}></div>
+              {/* Animated ring */}
+              <div className="absolute inset-0 rounded-full border-4 border-transparent animate-spin" style={{ borderTopColor: 'var(--primary)', borderRightColor: 'var(--primary)' }}></div>
+              {/* Inner pulsing dot */}
+              <div className="absolute inset-2 rounded-full animate-pulse" style={{ background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))' }}></div>
+            </div>
+          </div>
+          
+          {/* Loading text with typewriter effect */}
+          <div className="space-y-2">
+            <p className="text-lg font-medium animate-pulse" style={{ color: 'var(--text-main)' }}>Loading form...</p>
+            <div className="flex justify-center space-x-1">
+              <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0s' }}></div>
+              <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0.1s' }}></div>
+              <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: 'var(--primary)', animationDelay: '0.2s' }}></div>
+            </div>
+          </div>
+          
+          {/* Progress bar */}
+          <div className="mt-8 w-64 mx-auto">
+            <div className="h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-light)' }}>
+              <div className="h-full rounded-full animate-pulse" style={{ 
+                background: 'linear-gradient(90deg, var(--primary), var(--primary-dark), var(--secondary))',
+                width: '100%',
+                animation: 'loading-progress 2s ease-in-out infinite'
+              }}></div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -134,15 +178,15 @@ export default function LeadCapturePage() {
 
   if (error && !linkData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
+        <div className="max-w-md w-full rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(239, 68, 68, 0.1)' }}>
+            <svg className="w-8 h-8" style={{ color: 'var(--error)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Form Not Available</h2>
-          <p className="text-gray-600">{error}</p>
+          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Form Not Available</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>{error}</p>
         </div>
       </div>
     );
@@ -150,15 +194,15 @@ export default function LeadCapturePage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6 text-center">
-          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--background)' }}>
+        <div className="max-w-md w-full rounded-lg p-6 text-center" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ background: 'rgba(16, 185, 129, 0.1)' }}>
+            <svg className="w-8 h-8" style={{ color: 'var(--success)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Thank You!</h2>
-          <p className="text-gray-600">
+          <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Thank You!</h2>
+          <p style={{ color: 'var(--text-secondary)' }}>
             Your information has been submitted successfully. We&apos;ll be in touch soon!
           </p>
         </div>
@@ -167,26 +211,26 @@ export default function LeadCapturePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--background)' }}>
       <div className="max-w-md mx-auto">
-        <div className="bg-white shadow-lg rounded-lg p-6">
+        <div className="rounded-lg p-6" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
           <div className="text-center mb-6">
-            <h1 className="text-2xl font-bold text-indigo-600 mb-2">NodoLeads</h1>
-            <h2 className="text-xl font-semibold text-gray-900">{linkData?.title}</h2>
+            <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
+            <h2 className="text-xl font-semibold" style={{ color: 'var(--text-main)' }}>{linkData?.title}</h2>
             {linkData?.description && (
-              <p className="text-gray-600 mt-2">{linkData.description}</p>
+              <p className="mt-2" style={{ color: 'var(--text-secondary)' }}>{linkData.description}</p>
             )}
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+              <div className="px-4 py-3 rounded-md" style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid var(--error)', color: 'var(--error)' }}>
                 {error}
               </div>
             )}
 
             <div>
-              <label htmlFor="business_name" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="business_name" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Business Name *
               </label>
               <input
@@ -196,13 +240,18 @@ export default function LeadCapturePage() {
                 required
                 value={formData.business_name}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="Enter your business name"
               />
             </div>
 
             <div>
-              <label htmlFor="contact_person" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="contact_person" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Contact Person
               </label>
               <input
@@ -211,13 +260,18 @@ export default function LeadCapturePage() {
                 name="contact_person"
                 value={formData.contact_person}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="Your name"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Email Address *
               </label>
               <input
@@ -227,13 +281,18 @@ export default function LeadCapturePage() {
                 required
                 value={formData.email}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="your@email.com"
               />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="phone" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Phone Number
               </label>
               <input
@@ -242,13 +301,18 @@ export default function LeadCapturePage() {
                 name="phone"
                 value={formData.phone}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="+1 (555) 123-4567"
               />
             </div>
 
             <div>
-              <label htmlFor="lead_source" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="lead_source" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 How did you hear about us?
               </label>
               <select
@@ -256,7 +320,12 @@ export default function LeadCapturePage() {
                 name="lead_source"
                 value={formData.lead_source}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
               >
                 <option value="">Select an option</option>
                 <option value="Facebook">Facebook</option>
@@ -272,7 +341,7 @@ export default function LeadCapturePage() {
             </div>
 
             <div>
-              <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="notes" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Additional Information
               </label>
               <textarea
@@ -281,7 +350,12 @@ export default function LeadCapturePage() {
                 rows={3}
                 value={formData.notes}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                className="w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors duration-200 resize-none"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="Tell us about your business or any specific needs..."
               />
             </div>
@@ -289,7 +363,11 @@ export default function LeadCapturePage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              style={{ 
+                background: submitting ? 'var(--text-muted)' : 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                boxShadow: 'var(--shadow-lg)'
+              }}
             >
               {submitting ? 'Submitting...' : 'Submit Information'}
             </button>
