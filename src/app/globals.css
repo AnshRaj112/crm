@@ -21,7 +21,8 @@
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
 }
 
-@theme inline {
+/* Theme variables */
+:root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
@@ -599,5 +600,107 @@ body {
   .hero-button, .hero-button-secondary {
     padding: 14px 24px;
     font-size: 1rem;
+  }
+
+  /* Mobile-specific improvements */
+  .mobile-hidden {
+    display: none !important;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+  }
+
+  .mobile-text-center {
+    text-align: center !important;
+  }
+
+  /* Better spacing for mobile */
+  .mobile-padding {
+    padding: 1rem !important;
+  }
+
+  .mobile-margin {
+    margin: 0.5rem !important;
+  }
+
+  /* Mobile-friendly table */
+  .mobile-table {
+    font-size: 0.875rem;
+  }
+
+  .mobile-table th,
+  .mobile-table td {
+    padding: 0.5rem !important;
+  }
+
+  /* Mobile navigation */
+  .mobile-nav {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Mobile cards */
+  .mobile-card {
+    margin-bottom: 1rem;
+  }
+
+  /* Mobile forms */
+  .mobile-form-group {
+    margin-bottom: 1rem;
+  }
+
+  .mobile-form-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+  }
+
+  /* Mobile buttons */
+  .mobile-button {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* Additional mobile breakpoints */
+@media (max-width: 480px) {
+  .auth-title {
+    font-size: 1.75rem;
+  }
+  
+  .landing-title {
+    font-size: 2rem;
+  }
+  
+  .hero-button, .hero-button-secondary {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
+
+  /* Extra small mobile adjustments */
+  .xs-mobile-padding {
+    padding: 0.75rem !important;
+  }
+
+  .xs-mobile-text {
+    font-size: 0.875rem !important;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .tablet-hidden {
+    display: none !important;
   }
 }

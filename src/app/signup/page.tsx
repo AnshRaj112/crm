@@ -49,20 +49,20 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--background)' }}>
         <div className="max-w-md w-full space-y-8">
           <div className="text-center">
             <div className="flex justify-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'var(--success)' }}>
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
             </div>
-            <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            <h2 className="mt-6 text-3xl font-extrabold" style={{ color: 'var(--text-main)' }}>
               Account Created Successfully!
             </h2>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2" style={{ color: 'var(--text-secondary)' }}>
               Please check your email to verify your account. You&apos;ll be redirected shortly.
             </p>
           </div>
@@ -72,33 +72,33 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8" style={{ background: 'var(--background)' }}>
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div>
           <div className="flex justify-center">
-            <h1 className="text-3xl font-bold text-indigo-600">NodoLeads</h1>
+            <h1 className="text-3xl font-bold" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 sm:mt-6 text-center text-2xl sm:text-3xl font-extrabold" style={{ color: 'var(--text-main)' }}>
             Create your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
             Already have an account?{' '}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/login" className="font-medium transition-colors duration-200" style={{ color: 'var(--primary)' }}>
               Sign in
             </Link>
           </p>
         </div>
         
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-6 sm:mt-8 space-y-4 sm:space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+            <div className="px-4 py-3 rounded-md" style={{ background: 'var(--error)', color: 'white' }}>
               {error}
             </div>
           )}
           
           <div className="space-y-4">
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="fullName" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Full Name
               </label>
               <input
@@ -109,13 +109,18 @@ export default function SignupPage() {
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10 sm:text-sm transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="Enter your full name"
               />
             </div>
             
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Email address
               </label>
               <input
@@ -126,13 +131,18 @@ export default function SignupPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10 sm:text-sm transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="Enter your email"
               />
             </div>
             
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>
                 Password
               </label>
               <input
@@ -143,7 +153,12 @@ export default function SignupPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:z-10 sm:text-sm transition-colors duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-main)'
+                }}
                 placeholder="Create a password"
               />
             </div>
@@ -153,7 +168,11 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-md text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              style={{ 
+                background: loading ? 'var(--text-muted)' : 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                boxShadow: 'var(--shadow-lg)'
+              }}
             >
               {loading ? 'Creating account...' : 'Create account'}
             </button>
@@ -162,10 +181,10 @@ export default function SignupPage() {
           <div className="mt-6">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
+                <div className="w-full border-t" style={{ borderColor: 'var(--border)' }} />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2" style={{ background: 'var(--background)', color: 'var(--text-muted)' }}>Or continue with</span>
               </div>
             </div>
 
@@ -174,7 +193,12 @@ export default function SignupPage() {
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={loading}
-                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex justify-center py-3 px-4 border rounded-md shadow-sm text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                style={{ 
+                  borderColor: 'var(--border)', 
+                  background: 'var(--card-bg)',
+                  color: 'var(--text-secondary)'
+                }}
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path

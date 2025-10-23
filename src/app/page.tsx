@@ -149,15 +149,15 @@ export default function Home() {
         {/* Header */}
         <header className="shadow-sm" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow)' }}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center py-6">
+            <div className="flex justify-between items-center py-4 sm:py-6">
               <div className="flex items-center">
-                <h1 className="text-2xl font-bold" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
-                <span className="ml-2 text-sm" style={{ color: 'var(--text-muted)' }}>by Exsolvia</span>
+                <h1 className="text-xl sm:text-2xl font-bold" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
+                <span className="ml-1 sm:ml-2 text-xs sm:text-sm" style={{ color: 'var(--text-muted)' }}>by Exsolvia</span>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 <Link
                   href="/login"
-                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                  className="px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base"
                   style={{ 
                     color: 'var(--text-secondary)',
                     background: 'var(--border-light)',
@@ -168,7 +168,7 @@ export default function Home() {
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-4 py-2 rounded-lg font-medium transition-all duration-200"
+                  className="px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-200 text-sm sm:text-base"
                   style={{ 
                     background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
                     color: 'white',
@@ -183,54 +183,54 @@ export default function Home() {
         </header>
 
         {/* Hero Section */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6" style={{ color: 'var(--text-main)' }}>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight" style={{ color: 'var(--text-main)' }}>
               Welcome to{' '}
               <span style={{ color: 'var(--primary)' }}>NodoLeads</span>
             </h1>
-            <p className="text-xl mb-8 max-w-3xl mx-auto" style={{ color: 'var(--text-secondary)' }}>
+            <p className="text-lg sm:text-xl mb-6 sm:mb-8 max-w-3xl mx-auto px-4" style={{ color: 'var(--text-secondary)' }}>
               The ultimate CRM solution by <strong>Exsolvia</strong>. Generate, track, and convert leads 
               with powerful QR codes, analytics, and automated workflows.
             </p>
             
             {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-8 mb-12">
-              <div className="p-6 rounded-xl" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--border-light)' }}>
-                  <svg className="w-6 h-6" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12 px-4">
+              <div className="p-4 sm:p-6 rounded-xl" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4" style={{ background: 'var(--border-light)' }}>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-main)' }}>QR Code Generation</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>Create unique QR codes and links for instant lead capture</p>
+                <h3 className="text-base sm:text-lg font-semibold mb-2" style={{ color: 'var(--text-main)' }}>QR Code Generation</h3>
+                <p className="text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>Create unique QR codes and links for instant lead capture</p>
               </div>
               
-              <div className="p-6 rounded-xl" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--border-light)' }}>
-                  <svg className="w-6 h-6" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-4 sm:p-6 rounded-xl" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4" style={{ background: 'var(--border-light)' }}>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Analytics Dashboard</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>Track daily, weekly, monthly, and yearly lead performance</p>
+                <h3 className="text-base sm:text-lg font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Analytics Dashboard</h3>
+                <p className="text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>Track daily, weekly, monthly, and yearly lead performance</p>
               </div>
               
-              <div className="p-6 rounded-xl" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                <div className="w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4" style={{ background: 'var(--border-light)' }}>
-                  <svg className="w-6 h-6" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="p-4 sm:p-6 rounded-xl sm:col-span-2 lg:col-span-1" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4" style={{ background: 'var(--border-light)' }}>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Lead Management</h3>
-                <p style={{ color: 'var(--text-secondary)' }}>Organize leads by status, source, and engagement level</p>
+                <h3 className="text-base sm:text-lg font-semibold mb-2" style={{ color: 'var(--text-main)' }}>Lead Management</h3>
+                <p className="text-sm sm:text-base" style={{ color: 'var(--text-secondary)' }}>Organize leads by status, source, and engagement level</p>
               </div>
             </div>
             
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 px-4">
               <Link
                 href="/signup"
-                className="px-8 py-4 rounded-lg font-semibold text-lg inline-block transition-all duration-200"
+                className="px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-semibold text-base sm:text-lg inline-block transition-all duration-200"
                 style={{ 
                   background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
                   color: 'white',
@@ -239,7 +239,7 @@ export default function Home() {
               >
                 Start Your Free Trial
               </Link>
-              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>No credit card required • 14-day free trial</p>
+              <p className="text-xs sm:text-sm" style={{ color: 'var(--text-muted)' }}>No credit card required • 14-day free trial</p>
             </div>
           </div>
         </main>
@@ -252,16 +252,16 @@ export default function Home() {
       {/* Navigation */}
       <nav className="border-b" style={{ background: 'var(--card-bg)', borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between items-center h-14 sm:h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
-              <span className="ml-2 text-sm" style={{ color: 'var(--text-muted)' }}>by Exsolvia</span>
+              <h1 className="text-lg sm:text-xl font-bold" style={{ color: 'var(--primary)' }}>NodoLeads</h1>
+              <span className="ml-1 sm:ml-2 text-xs sm:text-sm" style={{ color: 'var(--text-muted)' }}>by Exsolvia</span>
             </div>
-            <div className="flex items-center space-x-4">
-              <span style={{ color: 'var(--text-secondary)' }}>Welcome, {getFirstName()}</span>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <span className="text-sm sm:text-base hidden sm:inline" style={{ color: 'var(--text-secondary)' }}>Welcome, {getFirstName()}</span>
               <button
                 onClick={() => signOut()}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+                className="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200"
                 style={{ 
                   color: 'var(--text-secondary)',
                   background: 'var(--border-light)',
@@ -275,13 +275,13 @@ export default function Home() {
         </div>
       </nav>
 
-            {/* Tab Navigation */}
-      <div className="border-b" style={{ background: 'var(--card-bg)', borderColor: 'var(--border)' }}>
+      {/* Tab Navigation */}
+      <div className="border-b overflow-x-auto" style={{ background: 'var(--card-bg)', borderColor: 'var(--border)' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-4 sm:space-x-8 min-w-max">
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'dashboard'
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent'
@@ -294,7 +294,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setActiveTab('leads')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'leads'
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent'
@@ -307,7 +307,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setActiveTab('create')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'create'
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent'
@@ -320,7 +320,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setActiveTab('analytics')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'analytics'
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent'
@@ -333,7 +333,7 @@ export default function Home() {
             </button>
             <button
               onClick={() => setActiveTab('qr-codes')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-all duration-200 ${
+              className={`py-3 sm:py-4 px-1 border-b-2 font-medium text-xs sm:text-sm transition-all duration-200 whitespace-nowrap ${
                 activeTab === 'qr-codes'
                   ? 'border-indigo-500 text-indigo-600'
                   : 'border-transparent'
@@ -349,8 +349,8 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+      <main className="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
+        <div className="py-4 sm:py-6">
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               {/* Welcome Section */}
@@ -366,21 +366,21 @@ export default function Home() {
               </div>
 
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:gap-5 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="overflow-hidden rounded-lg transition-transform duration-200 " style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                  <div className="p-5">
+                  <div className="p-3 sm:p-5">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--success), #059669)' }}>
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--success), #059669)' }}>
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                           </svg>
                         </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
+                      <div className="ml-3 sm:ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Daily Leads</dt>
-                          <dd className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.daily}</dd>
+                          <dt className="text-xs sm:text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Daily Leads</dt>
+                          <dd className="text-lg sm:text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.daily}</dd>
                         </dl>
                       </div>
                     </div>
@@ -388,19 +388,19 @@ export default function Home() {
                 </div>
 
                 <div className="overflow-hidden rounded-lg transition-transform duration-200 " style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                  <div className="p-5">
+                  <div className="p-3 sm:p-5">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--info), #1d4ed8)' }}>
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--info), #1d4ed8)' }}>
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                           </svg>
                         </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
+                      <div className="ml-3 sm:ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Weekly Leads</dt>
-                          <dd className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.weekly}</dd>
+                          <dt className="text-xs sm:text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Weekly Leads</dt>
+                          <dd className="text-lg sm:text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.weekly}</dd>
                         </dl>
                       </div>
                     </div>
@@ -408,19 +408,19 @@ export default function Home() {
                 </div>
 
                 <div className="overflow-hidden rounded-lg transition-transform duration-200 " style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                  <div className="p-5">
+                  <div className="p-3 sm:p-5">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}>
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}>
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                         </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
+                      <div className="ml-3 sm:ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Monthly Leads</dt>
-                          <dd className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.monthly}</dd>
+                          <dt className="text-xs sm:text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Monthly Leads</dt>
+                          <dd className="text-lg sm:text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.monthly}</dd>
                         </dl>
                       </div>
                     </div>
@@ -428,19 +428,19 @@ export default function Home() {
                 </div>
 
                 <div className="overflow-hidden rounded-lg transition-transform duration-200 " style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
-                  <div className="p-5">
+                  <div className="p-3 sm:p-5">
                     <div className="flex items-center">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--secondary), #d97706)' }}>
-                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--secondary), #d97706)' }}>
+                          <svg className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                           </svg>
                         </div>
                       </div>
-                      <div className="ml-5 w-0 flex-1">
+                      <div className="ml-3 sm:ml-5 w-0 flex-1">
                         <dl>
-                          <dt className="text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Yearly Leads</dt>
-                          <dd className="text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.yearly}</dd>
+                          <dt className="text-xs sm:text-sm font-medium truncate" style={{ color: 'var(--text-muted)' }}>Yearly Leads</dt>
+                          <dd className="text-lg sm:text-2xl font-bold" style={{ color: 'var(--text-main)' }}>{stats.yearly}</dd>
                         </dl>
                       </div>
                     </div>
@@ -541,9 +541,9 @@ export default function Home() {
           {activeTab === 'leads' && (
             <div className="rounded-lg" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-lg)' }}>
               <div className="px-4 py-5 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <div className="flex flex-col gap-4 mb-6">
                   <h3 className="text-lg leading-6 font-medium" style={{ color: 'var(--text-main)' }}>All Leads</h3>
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="flex flex-col">
                       <label className="text-xs font-medium mb-1" style={{ color: 'var(--text-secondary)' }}>Filter by Source</label>
                       <select 
@@ -551,8 +551,7 @@ export default function Home() {
                         style={{ 
                           borderColor: 'var(--border)', 
                           background: 'var(--card-bg)',
-                          color: 'var(--text-main)',
-                          minWidth: '140px'
+                          color: 'var(--text-main)'
                         }}
                         value={sourceFilter}
                         onChange={(e) => setSourceFilter(e.target.value)}
@@ -576,8 +575,7 @@ export default function Home() {
                         style={{ 
                           borderColor: 'var(--border)', 
                           background: 'var(--card-bg)',
-                          color: 'var(--text-main)',
-                          minWidth: '140px'
+                          color: 'var(--text-main)'
                         }}
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
@@ -597,7 +595,7 @@ export default function Home() {
                           setSourceFilter('');
                           setStatusFilter('');
                         }}
-                        className="px-3 py-2 text-xs font-medium rounded-md transition-colors duration-200 "
+                        className="px-3 py-2 text-xs font-medium rounded-md transition-colors duration-200"
                         style={{
                           background: 'var(--border-light)',
                           color: 'var(--text-secondary)',
