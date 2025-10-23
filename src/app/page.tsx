@@ -15,6 +15,8 @@ export default function Home() {
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [showLeadDetails, setShowLeadDetails] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [showQRLeads, setShowQRLeads] = useState(false);
+  const [selectedQRCode, setSelectedQRCode] = useState<{ id: string; title: string; leads: Lead[] } | null>(null);
   const [createLeadForm, setCreateLeadForm] = useState({
     business_name: '',
     contact_person: '',
@@ -679,11 +681,24 @@ export default function Home() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                                lead.source_type === 'qr_link' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
-                              }`}>
-                                {lead.lead_source?.name || 'Unknown'}
-                              </span>
+                              <div>
+                                {lead.source_type === 'qr_link' ? (
+                                  <div>
+                                    <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 mb-1">
+                                      QR Code
+                                    </span>
+                                    {lead.capture_link && (
+                                      <div className="text-xs text-gray-500">
+                                        via {lead.capture_link.title}
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                                    {lead.lead_source?.name || 'Manual Entry'}
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <select
@@ -1092,10 +1107,12 @@ export default function Home() {
                                 onClick={() => {
                                   // Filter leads that came from this QR code
                                   const qrCodeLeads = leads.filter(lead => lead.capture_link?.id === link.id);
-                                  if (qrCodeLeads.length > 0) {
-                                    setSelectedLead(qrCodeLeads[0]);
-                                    setShowLeadDetails(true);
-                                  }
+                                  setSelectedQRCode({
+                                    id: link.id,
+                                    title: link.title,
+                                    leads: qrCodeLeads
+                                  });
+                                  setShowQRLeads(true);
                                 }}
                                 className="flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors duration-200"
                                 style={{ 
@@ -1103,7 +1120,7 @@ export default function Home() {
                                   color: 'white'
                                 }}
                               >
-                                View Leads
+                                View Leads ({leads.filter(lead => lead.capture_link?.id === link.id).length})
                               </button>
                             </div>
                           </div>
@@ -1244,6 +1261,140 @@ export default function Home() {
       {/* QR Code Generator Modal */}
       {showQRGenerator && (
         <QRCodeGenerator onClose={() => setShowQRGenerator(false)} />
+      )}
+
+      {/* QR Code Leads Modal */}
+      {showQRLeads && selectedQRCode && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">Leads from "{selectedQRCode.title}"</h3>
+                <p className="text-sm text-gray-600 mt-1">{selectedQRCode.leads.length} lead{selectedQRCode.leads.length !== 1 ? 's' : ''} captured</p>
+              </div>
+              <button
+                onClick={() => setShowQRLeads(false)}
+                className="text-gray-400 transition-colors duration-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {selectedQRCode.leads.length === 0 ? (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <p className="mt-2 text-gray-500">No leads captured yet</p>
+                <p className="text-sm text-gray-400">Leads will appear here when people submit the form via this QR code</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Business
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Contact
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Source
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {selectedQRCode.leads.map((lead) => (
+                      <tr key={lead.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">{lead.business_name}</div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            {lead.contact_person && (
+                              <div className="text-sm text-gray-900">{lead.contact_person}</div>
+                            )}
+                            {lead.email && (
+                              <div className="text-sm text-gray-500">{lead.email}</div>
+                            )}
+                            {lead.phone && (
+                              <div className="text-sm text-gray-500">{lead.phone}</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                            QR Code
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select
+                            value={lead.status_id || 1}
+                            onChange={(e) => updateLeadStatus(lead.id, parseInt(e.target.value))}
+                            className={`text-xs font-medium rounded-full border-0 transition-colors duration-200 ${
+                              lead.status?.name === 'New' ? 'bg-green-100 text-green-800' :
+                              lead.status?.name === 'Contacted' ? 'bg-blue-100 text-blue-800' :
+                              lead.status?.name === 'Interested' ? 'bg-yellow-100 text-yellow-800' :
+                              lead.status?.name === 'On Hold' ? 'bg-red-100 text-red-800' :
+                              lead.status?.name === 'Declined' ? 'bg-gray-100 text-gray-800' :
+                              lead.status?.name === 'Converted' ? 'bg-purple-100 text-purple-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            <option value={1}>New</option>
+                            <option value={2}>Contacted</option>
+                            <option value={3}>Interested</option>
+                            <option value={4}>On Hold</option>
+                            <option value={5}>Declined</option>
+                            <option value={6}>Converted</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(lead.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={() => {
+                              setSelectedLead(lead);
+                              setShowQRLeads(false);
+                              setShowLeadDetails(true);
+                            }}
+                            className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200"
+                          >
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowQRLeads(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 transition-colors duration-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
