@@ -1269,7 +1269,7 @@ export default function Home() {
           <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Leads from "{selectedQRCode.title}"</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Leads from &quot;{selectedQRCode.title}&quot;</h3>
                 <p className="text-sm text-gray-600 mt-1">{selectedQRCode.leads.length} lead{selectedQRCode.leads.length !== 1 ? 's' : ''} captured</p>
               </div>
               <button
