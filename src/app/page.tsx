@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { useLeads } from '../contexts/LeadsContext';
+import { useLeads, Lead } from '../contexts/LeadsContext';
 import Link from 'next/link';
 import QRCodeGenerator from '../components/QRCodeGenerator';
 import LeadSourceChart from '../components/LeadSourceChart';
@@ -14,7 +14,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'leads' | 'create' | 'analytics' | 'qr-codes'>('dashboard');
   const [showQRGenerator, setShowQRGenerator] = useState(false);
   const [showLeadDetails, setShowLeadDetails] = useState(false);
-  const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [createLeadForm, setCreateLeadForm] = useState({
     business_name: '',
     contact_person: '',
@@ -34,7 +34,7 @@ export default function Home() {
     return fullName.split(' ')[0] || 'User';
   };
 
-  const handleViewLead = (lead: any) => {
+  const handleViewLead = (lead: Lead) => {
     setSelectedLead(lead);
     setShowLeadDetails(true);
   };
@@ -1048,8 +1048,12 @@ export default function Home() {
                               </button>
                               <button
                                 onClick={() => {
-                                  setSelectedLead({ capture_link: link });
-                                  setShowLeadDetails(true);
+                                  // Filter leads that came from this QR code
+                                  const qrCodeLeads = leads.filter(lead => lead.capture_link?.id === link.id);
+                                  if (qrCodeLeads.length > 0) {
+                                    setSelectedLead(qrCodeLeads[0]);
+                                    setShowLeadDetails(true);
+                                  }
                                 }}
                                 className="flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors duration-200"
                                 style={{ 
