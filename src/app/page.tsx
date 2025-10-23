@@ -1266,15 +1266,16 @@ export default function Home() {
       {/* QR Code Leads Modal */}
       {showQRLeads && selectedQRCode && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+          <div className="rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto" style={{ background: 'var(--card-bg)', boxShadow: 'var(--shadow-xl)' }}>
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">Leads from &quot;{selectedQRCode.title}&quot;</h3>
-                <p className="text-sm text-gray-600 mt-1">{selectedQRCode.leads.length} lead{selectedQRCode.leads.length !== 1 ? 's' : ''} captured</p>
+                <h3 className="text-xl font-semibold" style={{ color: 'var(--text-main)' }}>Leads from &quot;{selectedQRCode.title}&quot;</h3>
+                <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{selectedQRCode.leads.length} lead{selectedQRCode.leads.length !== 1 ? 's' : ''} captured</p>
               </div>
               <button
                 onClick={() => setShowQRLeads(false)}
-                className="text-gray-400 transition-colors duration-200"
+                className="transition-colors duration-200"
+                style={{ color: 'var(--text-muted)' }}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1284,55 +1285,55 @@ export default function Home() {
 
             {selectedQRCode.leads.length === 0 ? (
               <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="mx-auto h-12 w-12" style={{ color: 'var(--text-muted)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
-                <p className="mt-2 text-gray-500">No leads captured yet</p>
-                <p className="text-sm text-gray-400">Leads will appear here when people submit the form via this QR code</p>
+                <p className="mt-2" style={{ color: 'var(--text-muted)' }}>No leads captured yet</p>
+                <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Leads will appear here when people submit the form via this QR code</p>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y" style={{ borderColor: 'var(--border)' }}>
+                  <thead style={{ background: 'var(--border-light)' }}>
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                         Business
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                         Contact
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                         Source
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                         Date
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="divide-y" style={{ background: 'var(--card-bg)', borderColor: 'var(--border)' }}>
                     {selectedQRCode.leads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-gray-50">
+                      <tr key={lead.id} className="transition-colors duration-200" style={{ background: 'var(--card-bg)' }}>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
-                            <div className="text-sm font-medium text-gray-900">{lead.business_name}</div>
+                            <div className="text-sm font-medium" style={{ color: 'var(--text-main)' }}>{lead.business_name}</div>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div>
                             {lead.contact_person && (
-                              <div className="text-sm text-gray-900">{lead.contact_person}</div>
+                              <div className="text-sm" style={{ color: 'var(--text-main)' }}>{lead.contact_person}</div>
                             )}
                             {lead.email && (
-                              <div className="text-sm text-gray-500">{lead.email}</div>
+                              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{lead.email}</div>
                             )}
                             {lead.phone && (
-                              <div className="text-sm text-gray-500">{lead.phone}</div>
+                              <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>{lead.phone}</div>
                             )}
                           </div>
                         </td>
@@ -1363,7 +1364,7 @@ export default function Home() {
                             <option value={6}>Converted</option>
                           </select>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-muted)' }}>
                           {new Date(lead.created_at).toLocaleDateString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -1373,7 +1374,8 @@ export default function Home() {
                               setShowQRLeads(false);
                               setShowLeadDetails(true);
                             }}
-                            className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200"
+                            className="transition-colors duration-200"
+                            style={{ color: 'var(--primary)' }}
                           >
                             View Details
                           </button>
@@ -1388,7 +1390,12 @@ export default function Home() {
             <div className="mt-6 flex justify-end space-x-3">
               <button
                 onClick={() => setShowQRLeads(false)}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 transition-colors duration-200"
+                className="px-4 py-2 border rounded-md transition-colors duration-200"
+                style={{
+                  borderColor: 'var(--border)',
+                  color: 'var(--text-secondary)',
+                  background: 'var(--border-light)'
+                }}
               >
                 Close
               </button>
